@@ -14,20 +14,20 @@ contract MintPositionScript is Script {
     using CurrencyLibrary for Currency;
 
     address constant PERMIT2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
-    address constant POSM    = 0x5de19fE5E05fD56882ACd533cE303def8c5C5705;
+    address constant POSM = 0x5de19fE5E05fD56882ACd533cE303def8c5C5705;
 
     function run() external {
         vm.startBroadcast();
 
         // -------------------------
         address weth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
-        address aot  = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
+        address aot = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
         address recipient = msg.sender;
 
         IPositionManager posm = IPositionManager(POSM);
 
         Currency wethCurrency = Currency.wrap(weth);
-        Currency aotCurrency  = Currency.wrap(aot);
+        Currency aotCurrency = Currency.wrap(aot);
 
         // -------------------------
         // Standard ERC20 approve - Approve Permit2 to spend tokens
@@ -54,13 +54,10 @@ contract MintPositionScript is Script {
         uint128 amount1Max = 20 ether;
         bytes memory hookData = bytes("");
 
-        bytes memory actions = abi.encodePacked(
-            uint8(Actions.MINT_POSITION),
-            uint8(Actions.SETTLE_PAIR)
-        );
+        bytes memory actions = abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR));
 
         bytes[] memory params = new bytes[](2);
-        
+
         params[0] = abi.encode(pool, tickLower, tickUpper, liquidity, amount0Max, amount1Max, recipient, hookData);
         params[1] = abi.encode(pool.currency0, pool.currency1);
 
@@ -74,17 +71,7 @@ contract MintPositionScript is Script {
     }
 
     function setPermit2Allowances(address weth, address aot) internal {
-        IAllowanceTransfer(PERMIT2).approve(
-            weth,
-            POSM,
-            type(uint160).max,
-            uint48(block.timestamp + 30 days)
-        );
-        IAllowanceTransfer(PERMIT2).approve(
-            aot,
-            POSM,
-            type(uint160).max,
-            uint48(block.timestamp + 30 days)
-        );
+        IAllowanceTransfer(PERMIT2).approve(weth, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
+        IAllowanceTransfer(PERMIT2).approve(aot, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
     }
 }

@@ -11,7 +11,7 @@ interface IERC20 {
 contract ApproveAllTokens is Script {
     // Example token addresses on Sepolia
     address constant WETH_ADDRESS = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
-    address constant DAI_ADDRESS  = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
+    address constant DAI_ADDRESS = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
 
     // Spender (e.g., Uniswap V4 Position Manager)
     address constant SPENDER = 0x5de19fE5E05fD56882ACd533cE303def8c5C5705;

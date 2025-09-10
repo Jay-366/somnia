@@ -4,7 +4,6 @@ pragma solidity ^0.8.19;
 import "lib/forge-std/src/Script.sol";
 import "lib/v4-core/src/PoolManager.sol";
 
-
 contract DeployPoolManager is Script {
     function run() external {
         // Load deployer private key as bytes32

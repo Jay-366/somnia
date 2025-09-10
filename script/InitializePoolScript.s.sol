@@ -19,8 +19,8 @@ contract InitializePoolScript is Script {
 
         IPoolManager poolManager = IPoolManager(poolManagerAddress);
 
-         // Wrap addresses as Currency
-         // Wrap addresses as Currency
+        // Wrap addresses as Currency
+        // Wrap addresses as Currency
         Currency wethCurrency = Currency.wrap(weth);
         Currency aotCurrency = Currency.wrap(aot);
 
@@ -28,7 +28,7 @@ contract InitializePoolScript is Script {
         PoolKey memory pool = PoolKey({
             currency0: wethCurrency < aotCurrency ? wethCurrency : aotCurrency,
             currency1: wethCurrency < aotCurrency ? aotCurrency : wethCurrency,
-            fee: 3000,       // 0.30% pool fee
+            fee: 3000, // 0.30% pool fee
             tickSpacing: 60, // example tick spacing
             hooks: IHooks(address(0)) // optional hook
         });

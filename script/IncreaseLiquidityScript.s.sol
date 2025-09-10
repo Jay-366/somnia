@@ -15,7 +15,7 @@ contract IncreaseLiquidityScript is Script {
     using CurrencyLibrary for Currency;
 
     address constant PERMIT2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
-    address constant POSM    = 0x5de19fE5E05fD56882ACd533cE303def8c5C5705;
+    address constant POSM = 0x5de19fE5E05fD56882ACd533cE303def8c5C5705;
 
     function run() external payable {
         vm.startBroadcast();
@@ -25,12 +25,12 @@ contract IncreaseLiquidityScript is Script {
 
         // Token addresses
         address weth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
-        address aot  = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
+        address aot = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
 
         IPositionManager posm = IPositionManager(POSM);
 
         Currency wethCurrency = Currency.wrap(weth);
-        Currency aotCurrency  = Currency.wrap(aot);
+        Currency aotCurrency = Currency.wrap(aot);
 
         // Wrap 0.1 ETH to WETH for adding liquidity
         console.log("=== WRAPPING ETH TO WETH ===");
@@ -41,7 +41,7 @@ contract IncreaseLiquidityScript is Script {
         // Get current balances BEFORE
         uint256 wethBalanceBefore = IERC20(weth).balanceOf(msg.sender);
         uint256 aotBalanceBefore = IERC20(aot).balanceOf(msg.sender);
-        
+
         console.log("=== BEFORE INCREASING LIQUIDITY ===");
         console.log("WETH balance:", wethBalanceBefore);
         console.log("AOT balance:", aotBalanceBefore);
@@ -66,7 +66,7 @@ contract IncreaseLiquidityScript is Script {
         uint256 tokenId = 1; // Assuming your first position has tokenId = 1
         uint256 liquidityToAdd = 0.02 ether; // Increased liquidity amount
         uint128 amount0Max = 0.1 ether; // Max WETH willing to pay (0.1 WETH)
-        uint128 amount1Max = 100 ether;  // Max AOT willing to pay (proportional increase)
+        uint128 amount1Max = 100 ether; // Max AOT willing to pay (proportional increase)
         bytes memory hookData = bytes("");
 
         console.log("=== INCREASE LIQUIDITY PARAMETERS ===");
@@ -76,31 +76,28 @@ contract IncreaseLiquidityScript is Script {
         console.log("Max amount1 (currency1):", amount1Max);
 
         // Encode actions for increasing liquidity
-        bytes memory actions = abi.encodePacked(
-            uint8(Actions.INCREASE_LIQUIDITY),
-            uint8(Actions.SETTLE_PAIR)
-        );
+        bytes memory actions = abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR));
 
         // Encode parameters
         bytes[] memory params = new bytes[](2);
-        
+
         // INCREASE_LIQUIDITY parameters
         params[0] = abi.encode(tokenId, liquidityToAdd, amount0Max, amount1Max, hookData);
-        
+
         // SETTLE_PAIR parameters
         params[1] = abi.encode(pool.currency0, pool.currency1);
 
         uint256 deadline = block.timestamp + 60;
 
         console.log("=== EXECUTING INCREASE LIQUIDITY ===");
-        
+
         // Execute the increase liquidity operation
         posm.modifyLiquidities(abi.encode(actions, params), deadline);
 
         // Get current balances AFTER
         uint256 wethBalanceAfter = IERC20(weth).balanceOf(msg.sender);
         uint256 aotBalanceAfter = IERC20(aot).balanceOf(msg.sender);
-        
+
         console.log("=== AFTER INCREASING LIQUIDITY ===");
         console.log("WETH balance:", wethBalanceAfter);
         console.log("AOT balance:", aotBalanceAfter);
@@ -118,17 +115,7 @@ contract IncreaseLiquidityScript is Script {
     }
 
     function setPermit2Allowances(address weth, address aot) internal {
-        IAllowanceTransfer(PERMIT2).approve(
-            weth,
-            POSM,
-            type(uint160).max,
-            uint48(block.timestamp + 30 days)
-        );
-        IAllowanceTransfer(PERMIT2).approve(
-            aot,
-            POSM,
-            type(uint160).max,
-            uint48(block.timestamp + 30 days)
-        );
+        IAllowanceTransfer(PERMIT2).approve(weth, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
+        IAllowanceTransfer(PERMIT2).approve(aot, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
     }
 }

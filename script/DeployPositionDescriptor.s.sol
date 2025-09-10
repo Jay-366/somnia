@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
@@ -11,11 +10,7 @@ contract DeployPositionDescriptor {
         address WETH9 = 0xdd13E55209Fd76AfE204dBda4007C227904f0a81; // Sepolia WETH
         bytes32 nativeLabel = "ETH";
 
-        PositionDescriptor descriptor = new PositionDescriptor(
-            poolManager,
-            WETH9,
-            nativeLabel
-        );
+        PositionDescriptor descriptor = new PositionDescriptor(poolManager, WETH9, nativeLabel);
 
         return descriptor;
     }

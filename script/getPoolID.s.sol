@@ -13,12 +13,8 @@ contract GetPoolIDScript is Script {
     function run() external view {
         // Example pool configuration (replace with your actual tokens)
         PoolKey memory poolKey = PoolKey({
-            currency0: Currency.wrap(
-                0xD98f9971773045735C62cD8f1a70047f81b9a468
-            ), // AOT
-            currency1: Currency.wrap(
-                0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14
-            ), // WETH
+            currency0: Currency.wrap(0xD98f9971773045735C62cD8f1a70047f81b9a468), // AOT
+            currency1: Currency.wrap(0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14), // WETH
             fee: 3000,
             tickSpacing: 60,
             hooks: IHooks(address(0))
