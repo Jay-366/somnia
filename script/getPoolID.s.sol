@@ -10,7 +10,7 @@ import {IHooks} from "lib/v4-core/src/interfaces/IHooks.sol";
 contract GetPoolIDScript is Script {
     using PoolIdLibrary for PoolKey;
 
-    function run() external view {
+    function run() external pure {
         // Example pool configuration (replace with your actual tokens)
         PoolKey memory poolKey = PoolKey({
             currency0: Currency.wrap(0xD98f9971773045735C62cD8f1a70047f81b9a468), // AOT
