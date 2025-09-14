@@ -76,13 +76,22 @@ contract IncreaseLiquidityScript is Script {
         console.log("Max amount1 (currency1):", amount1Max);
 
         // Encode actions for increasing liquidity
-        bytes memory actions = abi.encodePacked(uint8(Actions.INCREASE_LIQUIDITY), uint8(Actions.SETTLE_PAIR));
+        bytes memory actions = abi.encodePacked(
+            uint8(Actions.INCREASE_LIQUIDITY),
+            uint8(Actions.SETTLE_PAIR)
+        );
 
         // Encode parameters
         bytes[] memory params = new bytes[](2);
 
         // INCREASE_LIQUIDITY parameters
-        params[0] = abi.encode(tokenId, liquidityToAdd, amount0Max, amount1Max, hookData);
+        params[0] = abi.encode(
+            tokenId,
+            liquidityToAdd,
+            amount0Max,
+            amount1Max,
+            hookData
+        );
 
         // SETTLE_PAIR parameters
         params[1] = abi.encode(pool.currency0, pool.currency1);
@@ -115,7 +124,17 @@ contract IncreaseLiquidityScript is Script {
     }
 
     function setPermit2Allowances(address weth, address aot) internal {
-        IAllowanceTransfer(PERMIT2).approve(weth, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
-        IAllowanceTransfer(PERMIT2).approve(aot, POSM, type(uint160).max, uint48(block.timestamp + 30 days));
+        IAllowanceTransfer(PERMIT2).approve(
+            weth,
+            POSM,
+            type(uint160).max,
+            uint48(block.timestamp + 30 days)
+        );
+        IAllowanceTransfer(PERMIT2).approve(
+            aot,
+            POSM,
+            type(uint160).max,
+            uint48(block.timestamp + 30 days)
+        );
     }
 }

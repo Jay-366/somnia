@@ -29,13 +29,16 @@ contract TestSwap is Test {
     PoolId public poolId;
 
     // Addresses (replace with real deployments)
-    address constant POOLMANAGER_ADDR = 0xE03A1074c86CFeDd5C142C4F04F1a1536e203543;
+    address constant POOLMANAGER_ADDR =
+        0xE03A1074c86CFeDd5C142C4F04F1a1536e203543;
     address constant WETH_ADDR = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
     address constant AOT_ADDR = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
 
     modifier onlyIfDeployed() {
         if (POOLMANAGER_ADDR.code.length == 0) {
-            console.log("Skipping test - contracts not deployed on this network");
+            console.log(
+                "Skipping test - contracts not deployed on this network"
+            );
             return;
         }
         _;
@@ -74,7 +77,12 @@ contract TestSwap is Test {
     function testPoolExists() public view onlyIfDeployed {
         // Test that the pool exists and has been initialized
         // This test verifies the pool can be queried without reverting
-        (uint160 sqrtPriceX96, int24 tick, uint24 protocolFee, uint24 lpFee) = poolManager.getSlot0(poolId);
+        (
+            uint160 sqrtPriceX96,
+            int24 tick,
+            uint24 protocolFee,
+            uint24 lpFee
+        ) = poolManager.getSlot0(poolId);
 
         // Basic sanity checks
         assertTrue(sqrtPriceX96 > 0, "Pool should have a valid price");

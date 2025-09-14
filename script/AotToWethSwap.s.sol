@@ -14,7 +14,8 @@ contract AotToWethSwap is Script {
     using CurrencyLibrary for Currency;
 
     // Addresses - using your latest deployed contracts
-    address constant POOLMANAGER_ADDR = 0xE03A1074c86CFeDd5C142C4F04F1a1536e203543;
+    address constant POOLMANAGER_ADDR =
+        0xE03A1074c86CFeDd5C142C4F04F1a1536e203543;
     address constant WETH_ADDR = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
     address constant AOT_ADDR = 0xD98f9971773045735C62cD8f1a70047f81b9a468;
 
@@ -66,8 +67,8 @@ contract AotToWethSwap is Script {
                 : 1461446703485210103287273052203988822378723970341 // MAX_SQRT_RATIO - 1
         });
 
-        PoolSwapTest.TestSettings memory testSettings =
-            PoolSwapTest.TestSettings({takeClaims: false, settleUsingBurn: false});
+        PoolSwapTest.TestSettings memory testSettings = PoolSwapTest
+            .TestSettings({takeClaims: false, settleUsingBurn: false});
 
         // Execute the swap
         swapRouter.swap(poolKey, params, testSettings, "");
