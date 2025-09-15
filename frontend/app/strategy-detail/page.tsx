@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import Nav from "@/components/Nav";
 import { useSearchParams } from 'next/navigation';
 import ReactFlow, {
   Node,
@@ -21,6 +22,7 @@ import 'reactflow/dist/style.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ArbitrageInputNode } from "@/components/ArbitrageInputNode";
 
 // Custom Node Component
 const CustomNode = ({ data, selected }: any) => {
@@ -50,93 +52,73 @@ const CustomNode = ({ data, selected }: any) => {
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
+  arbitrageInput: ArbitrageInputNode,
 };
 
 export default function StrategyDetailPage() {
   const searchParams = useSearchParams();
   const strategyId = searchParams.get('id') || '1';
   
-  const [selectedNode, setSelectedNode] = useState<string>('wallet');
+  const [selectedNode, setSelectedNode] = useState<string>('detector');
+  const [swapAmount, setSwapAmount] = useState<number>(0);
+  const [estimatedProfit, setEstimatedProfit] = useState<number>(0);
+  const [canProceedToEscrow, setCanProceedToEscrow] = useState<boolean>(false);
 
-  // Define the flow nodes
+  // Callback functions for the ArbitrageInputNode
+  const handleAmountChange = useCallback((amount: number, profit: number) => {
+    setSwapAmount(amount);
+    setEstimatedProfit(profit);
+    setCanProceedToEscrow(amount >= 0.01 && profit > 0); // Changed to WETH minimum
+  }, []);
+
+  const handleProceedToEscrow = useCallback(() => {
+    if (canProceedToEscrow) {
+      setSelectedNode('escrow');
+      // Additional logic to proceed to escrow can be added here
+    }
+  }, [canProceedToEscrow]);
+
+  // Define the flow nodes - Simplified 3-node flow
   const initialNodes: Node[] = [
     {
-      id: 'wallet',
-      type: 'custom',
-      position: { x: 0, y: 100 },
+      id: 'detector',
+      type: 'arbitrageInput',
+      position: { x: 200, y: 100 },
       data: { 
-        emoji: '💳', 
-        label: 'User Wallet', 
-        subtitle: 'MetaMask Connection' 
+        emoji: '⚡', 
+        label: 'Arbitrage Detector', 
+        subtitle: 'Opportunity Scanner',
+        onAmountChange: handleAmountChange,
+        onProceedToEscrow: handleProceedToEscrow,
       },
     },
     {
       id: 'escrow',
       type: 'custom',
-      position: { x: 200, y: 100 },
-      data: { 
-        emoji: '🔒', 
-        label: 'Escrow Contract', 
-        subtitle: 'Fund Locking' 
-      },
-    },
-    {
-      id: 'dex-pool',
-      type: 'custom',
-      position: { x: 400, y: 100 },
-      data: { 
-        emoji: '🏦', 
-        label: 'DEX Pool', 
-        subtitle: 'AOT/WETH' 
-      },
-    },
-    {
-      id: 'oracle',
-      type: 'custom',
       position: { x: 600, y: 100 },
       data: { 
-        emoji: '📊', 
-        label: 'Pyth Oracle', 
-        subtitle: 'Price Feed' 
+        emoji: '🔒', 
+        label: 'Escrow Fund', 
+        subtitle: 'Secure Holdings' 
       },
     },
     {
-      id: 'detector',
-      type: 'custom',
-      position: { x: 800, y: 100 },
-      data: { 
-        emoji: '⚡', 
-        label: 'Arbitrage Detector', 
-        subtitle: 'Opportunity Scanner' 
-      },
-    },
-    {
-      id: 'swap',
+      id: 'execute',
       type: 'custom',
       position: { x: 1000, y: 100 },
       data: { 
         emoji: '🔄', 
-        label: 'Swap Execution', 
-        subtitle: 'Smart Contract' 
-      },
-    },
-    {
-      id: 'profit',
-      type: 'custom',
-      position: { x: 1200, y: 100 },
-      data: { 
-        emoji: '💰', 
-        label: 'Profit Return', 
-        subtitle: 'Withdraw Gains' 
+        label: 'Execute Swap', 
+        subtitle: 'Complete Trade' 
       },
     },
   ];
 
-  // Define the edges with better styling
+  // Define the edges - Simplified 2 edges for 3-node flow
   const initialEdges: Edge[] = [
     {
       id: 'e1-2',
-      source: 'wallet',
+      source: 'detector',
       target: 'escrow',
       type: 'smoothstep',
       style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
@@ -145,39 +127,7 @@ export default function StrategyDetailPage() {
     {
       id: 'e2-3',
       source: 'escrow',
-      target: 'dex-pool',
-      type: 'smoothstep',
-      style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
-      animated: true,
-    },
-    {
-      id: 'e3-4',
-      source: 'dex-pool',
-      target: 'oracle',
-      type: 'smoothstep',
-      style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
-      animated: true,
-    },
-    {
-      id: 'e4-5',
-      source: 'oracle',
-      target: 'detector',
-      type: 'smoothstep',
-      style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
-      animated: true,
-    },
-    {
-      id: 'e5-6',
-      source: 'detector',
-      target: 'swap',
-      type: 'smoothstep',
-      style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
-      animated: true,
-    },
-    {
-      id: 'e6-7',
-      source: 'swap',
-      target: 'profit',
+      target: 'execute',
       type: 'smoothstep',
       style: { stroke: 'rgb(178,255,238)', strokeWidth: 3 },
       animated: true,
@@ -197,135 +147,66 @@ export default function StrategyDetailPage() {
     setSelectedNode(node.id);
   }, []);
 
-  // Get details for selected node
+  // Get details for selected node - Updated for 3-node flow
   const getNodeDetails = (nodeId: string) => {
     const details: Record<string, any> = {
-      wallet: {
-        title: "User Wallet 💳",
-        description: "Connect your MetaMask wallet to start arbitrage trading",
-        status: "Connected",
+      detector: {
+        title: "Arbitrage Detector ⚡",
+        description: "Configure your WETH swap amount and review profit calculations before proceeding to escrow",
+        status: swapAmount > 0 ? (canProceedToEscrow ? "Ready to Proceed" : "Insufficient Profit") : "Enter WETH Amount",
         details: [
-          { label: "Balance", value: "100 SST" },
-          { label: "Address", value: "0x1234...abcd" },
-          { label: "Network", value: "Ethereum Mainnet" },
+          { label: "AOT Oracle Price", value: "$1,852.50" },
+          { label: "AOT Pool Price", value: "$1,847.23" },
+          { label: "Profit per AOT", value: "+$5.27" },
+          { label: "WETH Swap Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} WETH` : "Not set" },
+          { label: "Estimated Profit", value: swapAmount > 0 ? `$${estimatedProfit.toFixed(2)}` : "Calculating..." },
         ],
         action: {
-          label: "Deposit to Escrow",
-          variant: "default"
+          label: canProceedToEscrow ? "Proceed to Escrow" : "Set WETH Amount First",
+          variant: canProceedToEscrow ? "default" : "disabled"
         }
       },
       escrow: {
-        title: "Escrow Contract 🔒",
-        description: "Smart contract holds your funds safely during arbitrage execution",
-        status: "Locked",
+        title: "Escrow Fund 🔒",
+        description: "Deposit STT tokens as collateral for the WETH/AOT arbitrage trade execution",
+        status: swapAmount > 0 ? "Ready for STT Deposit" : "Awaiting WETH Amount",
         details: [
-          { label: "Locked Funds", value: "50 SST" },
+          { label: "WETH Trade Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} WETH` : "Set WETH amount first" },
+          { label: "Required STT Collateral", value: swapAmount > 0 ? `${(swapAmount * 1847.23).toFixed(2)} STT` : "TBD" },
+          { label: "Current STT Balance", value: "0 STT" },
+          { label: "Expected STT Return", value: swapAmount > 0 ? `${(swapAmount * 1847.23 + estimatedProfit).toFixed(2)} STT` : "TBD" },
           { label: "Contract Address", value: "0x5678...efgh" },
-          { label: "Lock Duration", value: "Until execution complete" },
         ],
         action: {
-          label: "Unlock Funds",
-          variant: "outline"
+          label: swapAmount > 0 ? "Deposit STT Collateral" : "Set WETH Amount First",
+          variant: swapAmount > 0 ? "default" : "disabled"
         }
       },
-      'dex-pool': {
-        title: "DEX Pool (AOT/WETH) 🏦",
-        description: "Uniswap V4 pool showing current liquidity and pricing",
-        status: "Active",
+      execute: {
+        title: "Execute Swap 🔄",
+        description: "Execute WETH→AOT arbitrage trade with profit returned to your STT escrow balance",
+        status: swapAmount > 0 ? "Ready to Execute" : "Awaiting Setup",
         details: [
-          { label: "Pool Price", value: "1 AOT = $0.95" },
-          { label: "Liquidity", value: "500k AOT / 250 WETH" },
-          { label: "24h Volume", value: "$2.1M" },
-          { label: "Fee Tier", value: "0.3%" },
+          { label: "WETH Swap Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} WETH` : "Not set" },
+          { label: "STT Collateral", value: swapAmount > 0 ? `${(swapAmount * 1847.23).toFixed(2)} STT` : "Not set" },
+          { label: "Execution Path", value: "WETH → AOT → Oracle Sale" },
+          { label: "Expected Profit", value: swapAmount > 0 ? `$${estimatedProfit.toFixed(2)}` : "TBD" },
+          { label: "Execution Time", value: "~30 seconds" },
         ],
         action: {
-          label: "View Pool Details",
-          variant: "outline"
-        }
-      },
-      oracle: {
-        title: "Pyth Oracle Feed 📊",
-        description: "Real-time price data from Pyth Network with cryptographic verification",
-        status: "Verified",
-        details: [
-          { label: "WETH/USD", value: "$2000" },
-          { label: "Derived AOT/USD", value: "$1.00" },
-          { label: "Last Update", value: "2 seconds ago" },
-          { label: "Confidence", value: "±$0.02" },
-        ],
-        action: {
-          label: "Refresh Feed",
-          variant: "outline"
-        }
-      },
-      detector: {
-        title: "Arbitrage Detector ⚡",
-        description: "AI-powered system detects profitable arbitrage opportunities in real-time",
-        status: "Opportunity Found",
-        details: [
-          { label: "Oracle Price", value: "$1.00 AOT" },
-          { label: "Pool Price", value: "$0.95 AOT" },
-          { label: "Price Difference", value: "+5.26%" },
-          { label: "Profit Potential", value: "$0.05 per AOT" },
-        ],
-        action: {
-          label: "Execute Arbitrage",
-          variant: "default"
-        }
-      },
-      swap: {
-        title: "Swap Execution 🔄",
-        description: "Smart contract automatically executes the arbitrage swap for maximum profit",
-        status: "Ready",
-        details: [
-          { label: "Execution Path", value: "WETH → AOT (buy cheap)" },
-          { label: "Expected Profit", value: "+5%" },
-          { label: "Gas Cost", value: "~$12" },
-          { label: "Slippage Tolerance", value: "0.5%" },
-        ],
-        action: {
-          label: "Execute Swap",
-          variant: "default"
-        }
-      },
-      profit: {
-        title: "Profit Return 💰",
-        description: "Receive your arbitrage profits and unlock your original funds",
-        status: "Pending",
-        details: [
-          { label: "Original Investment", value: "50 SST" },
-          { label: "Arbitrage Profit", value: "+2.5 SST" },
-          { label: "Total Return", value: "52.5 SST" },
-          { label: "ROI", value: "+5%" },
-        ],
-        action: {
-          label: "Withdraw Profit",
-          variant: "default"
+          label: swapAmount > 0 ? "Execute Arbitrage" : "Complete Setup First",
+          variant: swapAmount > 0 ? "default" : "disabled"
         }
       },
     };
-    return details[nodeId] || details.wallet;
+    return details[nodeId] || details.detector;
   };
 
   const currentDetails = getNodeDetails(selectedNode);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-slate-700/50">
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-          <div className="w-10 h-10 bg-gradient-to-br from-[rgb(178,255,238)] to-[rgb(30,255,195)] rounded-lg flex items-center justify-center">
-            <span className="text-slate-900 font-bold text-lg">AFS</span>
-          </div>
-          <span className="text-white text-sm font-medium">ANTI FRAGILE SYSTEM</span>
-        </Link>
-        
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-          <Link href="/arbitrage" className="text-gray-300 hover:text-white transition-colors">Arbitrage</Link>
-          <span className="text-[rgb(178,255,238)] font-medium">Strategy Detail</span>
-        </div>
-      </nav>
+      <Nav />
 
       {/* Main Content - ReactFlow as Full Background */}
       <div className="relative h-[calc(100vh-80px)]">
@@ -387,9 +268,20 @@ export default function StrategyDetailPage() {
                 className={`w-full ${
                   currentDetails.action.variant === 'default'
                     ? 'bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900'
+                    : currentDetails.action.variant === 'disabled'
+                    ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                     : 'bg-[rgb(30,255,195)]/10 hover:bg-[rgb(30,255,195)]/20 text-[rgb(178,255,238)] border border-[rgb(30,255,195)]/30 hover:border-[rgb(30,255,195)]/50'
                 } transition-all font-semibold`}
                 variant={currentDetails.action.variant === 'default' ? 'default' : 'outline'}
+                disabled={currentDetails.action.variant === 'disabled'}
+                onClick={() => {
+                  if (selectedNode === 'detector' && canProceedToEscrow) {
+                    handleProceedToEscrow();
+                  } else if (selectedNode === 'escrow' && swapAmount > 0) {
+                    setSelectedNode('execute');
+                  }
+                  // Add more action handlers as needed
+                }}
               >
                 {currentDetails.action.label}
               </Button>
@@ -398,13 +290,9 @@ export default function StrategyDetailPage() {
               <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
                 <div className="text-xs text-gray-500 mb-2">Step Information</div>
                 <div className="text-sm text-gray-300">
-                  {selectedNode === 'wallet' && "Connect your wallet to begin the arbitrage process."}
-                  {selectedNode === 'escrow' && "Funds are safely locked in a smart contract during execution."}
-                  {selectedNode === 'dex-pool' && "Monitor real-time pool data for arbitrage opportunities."}
-                  {selectedNode === 'oracle' && "Verified price feeds ensure accurate arbitrage calculations."}
-                  {selectedNode === 'detector' && "AI algorithms continuously scan for profitable opportunities."}
-                  {selectedNode === 'swap' && "Automated execution ensures optimal timing and pricing."}
-                  {selectedNode === 'profit' && "Receive your profits automatically after successful arbitrage."}
+                  {selectedNode === 'detector' && "AI algorithms continuously scan DEX pools and oracle feeds to identify profitable arbitrage opportunities in real-time."}
+                  {selectedNode === 'escrow' && "Smart contract securely holds your funds during execution with automated release upon completion or failure."}
+                  {selectedNode === 'execute' && "Automated execution ensures optimal timing, minimal slippage, and maximum profit extraction from arbitrage opportunities."}
                 </div>
               </div>
             </CardContent>

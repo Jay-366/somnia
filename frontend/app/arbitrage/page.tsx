@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Nav from "@/components/Nav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -139,21 +140,7 @@ export default function ArbitragePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-slate-700/50">
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-          <div className="w-10 h-10 bg-gradient-to-br from-[rgb(178,255,238)] to-[rgb(30,255,195)] rounded-lg flex items-center justify-center">
-            <span className="text-slate-900 font-bold text-lg">AFS</span>
-          </div>
-          <span className="text-white text-sm font-medium">ANTI FRAGILE SYSTEM</span>
-        </Link>
-        
-        <div className="flex items-center space-x-6">
-          <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
-          <Link href="/pyth" className="text-gray-300 hover:text-white transition-colors">Oracle Feeds</Link>
-          <span className="text-[rgb(178,255,238)] font-medium">Arbitrage</span>
-        </div>
-      </nav>
+      <Nav />
 
       {/* Header Section */}
       <div className="px-8 py-16">
