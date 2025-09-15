@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Nav from "@/components/Nav";
 import { useSearchParams } from 'next/navigation';
@@ -17,6 +17,7 @@ import ReactFlow, {
   NodeTypes,
   Handle,
   Position,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,13 +26,22 @@ import { Badge } from "@/components/ui/badge";
 import { ArbitrageInputNode } from "@/components/ArbitrageInputNode";
 
 // Custom Node Component
-const CustomNode = ({ data, selected }: any) => {
+const CustomNode = ({ data, selected, id }: any) => {
   return (
-    <div className={`px-4 py-3 rounded-lg border-2 min-w-[120px] text-center transition-all relative ${
-      selected 
-        ? 'border-[rgb(30,255,195)] bg-[rgb(30,255,195)]/20 shadow-lg shadow-[rgb(30,255,195)]/25' 
-        : 'border-slate-600 bg-slate-800/90 hover:border-[rgb(178,255,238)] hover:bg-slate-800'
-    }`}>
+    <div 
+      className={`px-4 py-3 rounded-lg border-2 min-w-[120px] text-center transition-all relative cursor-pointer ${
+        selected 
+          ? 'border-[rgb(30,255,195)] bg-[rgb(30,255,195)]/20 shadow-lg shadow-[rgb(30,255,195)]/25' 
+          : 'border-slate-600 bg-slate-800/90 hover:border-[rgb(178,255,238)] hover:bg-slate-800'
+      }`}
+      onClick={(e) => {
+        console.log(`🎯 CustomNode direct click: ${data.label} (${id})`);
+        if (data.onNodeClick) {
+          data.onNodeClick(id);
+        }
+        e.stopPropagation();
+      }}
+    >
       <Handle
         type="target"
         position={Position.Left}
@@ -55,14 +65,14 @@ const nodeTypes: NodeTypes = {
   arbitrageInput: ArbitrageInputNode,
 };
 
-export default function StrategyDetailPage() {
-  const searchParams = useSearchParams();
-  const strategyId = searchParams.get('id') || '1';
-  
+// Main Flow Component (with ReactFlow context)
+function StrategyFlow() {
+  const reactFlowInstance = useReactFlow();
   const [selectedNode, setSelectedNode] = useState<string>('detector');
   const [swapAmount, setSwapAmount] = useState<number>(0);
   const [estimatedProfit, setEstimatedProfit] = useState<number>(0);
   const [canProceedToEscrow, setCanProceedToEscrow] = useState<boolean>(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState<boolean>(false);
 
   // Callback functions for the ArbitrageInputNode
   const handleAmountChange = useCallback((amount: number, profit: number) => {
@@ -71,50 +81,7 @@ export default function StrategyDetailPage() {
     setCanProceedToEscrow(amount >= 0.01 && profit > 0); // Changed to WETH minimum
   }, []);
 
-  const handleProceedToEscrow = useCallback(() => {
-    if (canProceedToEscrow) {
-      setSelectedNode('escrow');
-      // Additional logic to proceed to escrow can be added here
-    }
-  }, [canProceedToEscrow]);
-
-  // Define the flow nodes - Simplified 3-node flow
-  const initialNodes: Node[] = [
-    {
-      id: 'detector',
-      type: 'arbitrageInput',
-      position: { x: 200, y: 100 },
-      data: { 
-        emoji: '⚡', 
-        label: 'Arbitrage Detector', 
-        subtitle: 'Opportunity Scanner',
-        onAmountChange: handleAmountChange,
-        onProceedToEscrow: handleProceedToEscrow,
-      },
-    },
-    {
-      id: 'escrow',
-      type: 'custom',
-      position: { x: 600, y: 100 },
-      data: { 
-        emoji: '🔒', 
-        label: 'Escrow Fund', 
-        subtitle: 'Secure Holdings' 
-      },
-    },
-    {
-      id: 'execute',
-      type: 'custom',
-      position: { x: 1000, y: 100 },
-      data: { 
-        emoji: '🔄', 
-        label: 'Execute Swap', 
-        subtitle: 'Complete Trade' 
-      },
-    },
-  ];
-
-  // Define the edges - Simplified 2 edges for 3-node flow
+  // Define the edges first - no dependencies
   const initialEdges: Edge[] = [
     {
       id: 'e1-2',
@@ -134,18 +101,124 @@ export default function StrategyDetailPage() {
     },
   ];
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  // Initialize with temporary nodes first
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Function to smoothly focus on a specific node
+  const focusOnNode = useCallback((nodeId: string) => {
+    const node = reactFlowInstance.getNode(nodeId);
+    if (node) {
+      console.log(`🎯 Focusing on node: ${nodeId}`); // Debug log
+      
+      // Set the selected node
+      setSelectedNode(nodeId);
+      
+      // Update nodes to reflect the selected state with a slight animation delay
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          selected: n.id === nodeId,
+        }))
+      );
+      
+      // First phase: Fit view to target node with smooth animation
+      reactFlowInstance.fitView({
+        nodes: [node],
+        duration: 800, // Animation duration in ms
+        padding: 0.3, // Padding around the focused node
+      });
+      
+      // Second phase: Center and zoom with enhanced effect
+      setTimeout(() => {
+        if (node.position) {
+          reactFlowInstance.setCenter(
+            node.position.x + (node.width || 160) / 2,
+            node.position.y + (node.height || 100) / 2,
+            { duration: 600, zoom: 1.3 } // Slightly more zoom and longer duration
+          );
+        }
+      }, 300); // Slightly longer delay for better effect
+    }
+  }, [reactFlowInstance, setNodes, setSelectedNode]);
+
+  // Define handleProceedToEscrow after focusOnNode
+  const handleProceedToEscrow = useCallback(() => {
+    if (canProceedToEscrow) {
+      // Smoothly focus on the escrow node
+      focusOnNode('escrow');
+    }
+  }, [canProceedToEscrow, focusOnNode]);
+
+  // Initialize nodes after all callbacks are defined
+  useEffect(() => {
+    const initialNodes: Node[] = [
+      {
+        id: 'detector',
+        type: 'arbitrageInput',
+        position: { x: 200, y: 100 },
+        selected: true, // Initially selected
+        data: { 
+          emoji: '⚡', 
+          label: 'Arbitrage Detector', 
+          subtitle: 'Opportunity Scanner',
+          onAmountChange: handleAmountChange,
+          onProceedToEscrow: handleProceedToEscrow,
+          onNodeClick: focusOnNode,
+        },
+      },
+      {
+        id: 'escrow',
+        type: 'custom',
+        position: { x: 600, y: 100 },
+        selected: false,
+        data: { 
+          emoji: '🔒', 
+          label: 'Escrow Fund', 
+          subtitle: 'Secure Holdings',
+          onNodeClick: focusOnNode,
+        },
+      },
+      {
+        id: 'execute',
+        type: 'custom',
+        position: { x: 1000, y: 100 },
+        selected: false,
+        data: { 
+          emoji: '🔄', 
+          label: 'Execute Swap', 
+          subtitle: 'Complete Trade',
+          onNodeClick: focusOnNode,
+        },
+      },
+    ];
+    
+    setNodes(initialNodes);
+  }, [handleAmountChange, handleProceedToEscrow, focusOnNode, setNodes]);
 
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
 
-  // Handle node click
+  // Handle node click with debugging
   const onNodeClick = useCallback((event: any, node: Node) => {
-    setSelectedNode(node.id);
-  }, []);
+    console.log(`🖱️ ReactFlow Node clicked: ${node.id}`, event, node); // Debug log
+    console.log(`🔄 About to call focusOnNode for: ${node.id}`);
+    focusOnNode(node.id);
+    console.log(`✅ focusOnNode called for: ${node.id}`);
+  }, [focusOnNode]);
+
+  // Handle node double click as backup
+  const onNodeDoubleClick = useCallback((event: any, node: Node) => {
+    console.log(`🖱️ Node double-clicked: ${node.id}`, node); // Debug log
+    focusOnNode(node.id);
+  }, [focusOnNode]);
+
+  // Add logging when component mounts
+  useEffect(() => {
+    console.log('🚀 StrategyFlow component mounted, ReactFlow instance:', reactFlowInstance);
+  }, [reactFlowInstance]);
 
   // Get details for selected node - Updated for 3-node flow
   const getNodeDetails = (nodeId: string) => {
@@ -172,9 +245,7 @@ export default function StrategyDetailPage() {
         status: swapAmount > 0 ? "Ready for STT Deposit" : "Awaiting WETH Amount",
         details: [
           { label: "WETH Trade Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} WETH` : "Set WETH amount first" },
-          { label: "Required STT Collateral", value: swapAmount > 0 ? `${(swapAmount * 1847.23).toFixed(2)} STT` : "TBD" },
-          { label: "Current STT Balance", value: "0 STT" },
-          { label: "Expected STT Return", value: swapAmount > 0 ? `${(swapAmount * 1847.23 + estimatedProfit).toFixed(2)} STT` : "TBD" },
+          { label: "Required STT Collateral", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} STT` : "TBD" },
           { label: "Contract Address", value: "0x5678...efgh" },
         ],
         action: {
@@ -205,9 +276,7 @@ export default function StrategyDetailPage() {
   const currentDetails = getNodeDetails(selectedNode);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
-      <Nav />
-
+    <>
       {/* Main Content - ReactFlow as Full Background */}
       <div className="relative h-[calc(100vh-80px)]">
         {/* ReactFlow covering entire page */}
@@ -218,6 +287,7 @@ export default function StrategyDetailPage() {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onNodeClick={onNodeClick}
+          onNodeDoubleClick={onNodeDoubleClick}
           nodeTypes={nodeTypes}
           fitView
           className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-blue-900/50 to-slate-800/50"
@@ -226,31 +296,54 @@ export default function StrategyDetailPage() {
             type: 'smoothstep',
             animated: true,
           }}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          elementsSelectable={true}
+          selectNodesOnDrag={false}
+          panOnDrag={true}
         >
           <Controls className="!bg-slate-800/90 !border-slate-600 !backdrop-blur-sm" />
           <Background color="#334155" gap={20} />
         </ReactFlow>
 
-        {/* Right Panel - Fixed Overlay */}
-        <div className="absolute top-8 right-8 w-96 h-[calc(100%-4rem)] z-10">
-          <Card className="bg-slate-800/90 border-slate-700 backdrop-blur-md h-full shadow-2xl">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white text-lg">{currentDetails.title}</CardTitle>
-                <Badge className={`${
-                  currentDetails.status === 'Verified' || currentDetails.status === 'Connected' || currentDetails.status === 'Active' 
-                    ? 'bg-green-100 text-green-800 border-green-200'
-                    : currentDetails.status === 'Opportunity Found'
-                    ? 'bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30'
-                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                } text-xs px-2 py-1`}>
-                  {currentDetails.status}
-                </Badge>
-              </div>
-              <CardDescription className="text-gray-400">
-                {currentDetails.description}
-              </CardDescription>
-            </CardHeader>
+        {/* Right Panel - Fixed Overlay with Vertical Collapse */}
+        <div className={`absolute top-8 right-8 w-96 z-10 transition-all duration-300 ${
+          isPanelCollapsed 
+            ? 'h-16' 
+            : 'h-[calc(100%-4rem)]'
+        }`}>
+          <Card className="bg-slate-800/90 border-slate-700 backdrop-blur-md h-full shadow-2xl relative">
+            {/* Toggle Button */}
+            <button
+              onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+              className="absolute top-2 right-2 z-20 w-8 h-8 bg-slate-700/80 hover:bg-slate-600/80 rounded-full flex items-center justify-center transition-all text-white"
+            >
+              <span className={`transform transition-transform duration-300 ${
+                isPanelCollapsed ? 'rotate-180' : 'rotate-0'
+              }`}>
+                {isPanelCollapsed ? '↓' : '↑'}
+              </span>
+            </button>
+
+            {!isPanelCollapsed && (
+              <>
+                <CardHeader>
+                  <div className="flex items-center justify-between pr-10">
+                    <CardTitle className="text-white text-lg">{currentDetails.title}</CardTitle>
+                    <Badge className={`${
+                      currentDetails.status === 'Verified' || currentDetails.status === 'Connected' || currentDetails.status === 'Active' 
+                        ? 'bg-green-100 text-green-800 border-green-200'
+                        : currentDetails.status === 'Opportunity Found'
+                        ? 'bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30'
+                        : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    } text-xs px-2 py-1`}>
+                      {currentDetails.status}
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    {currentDetails.description}
+                  </CardDescription>
+                </CardHeader>
 
             <CardContent className="space-y-6 overflow-y-auto h-[calc(100%-140px)]">
               {/* Details */}
@@ -278,7 +371,7 @@ export default function StrategyDetailPage() {
                   if (selectedNode === 'detector' && canProceedToEscrow) {
                     handleProceedToEscrow();
                   } else if (selectedNode === 'escrow' && swapAmount > 0) {
-                    setSelectedNode('execute');
+                    focusOnNode('execute');
                   }
                   // Add more action handlers as needed
                 }}
@@ -296,9 +389,54 @@ export default function StrategyDetailPage() {
                 </div>
               </div>
             </CardContent>
+              </>
+            )}
+
+            {/* Collapsed State - Show Node Info Horizontally */}
+            {isPanelCollapsed && (
+              <div className="flex items-center justify-between px-4 h-full">
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">
+                    {selectedNode === 'detector' && '⚡'}
+                    {selectedNode === 'escrow' && '🔒'}
+                    {selectedNode === 'execute' && '🔄'}
+                  </div>
+                  <div className="text-white font-semibold text-sm">
+                    {currentDetails.title.split(' ')[0]} {/* Show first word of title */}
+                  </div>
+                </div>
+                <Badge className={`${
+                  currentDetails.status === 'Verified' || currentDetails.status === 'Connected' || currentDetails.status === 'Active' 
+                    ? 'bg-green-100 text-green-800 border-green-200'
+                    : currentDetails.status === 'Opportunity Found'
+                    ? 'bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30'
+                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                } text-xs px-2 py-1 mr-10`}>
+                  {currentDetails.status.split(' ')[0]} {/* Show first word of status */}
+                </Badge>
+              </div>
+            )}
           </Card>
         </div>
       </div>
+    </>
+  );
+}
+
+// Main wrapper component
+export default function StrategyDetailPage() {
+  const searchParams = useSearchParams();
+  const strategyId = searchParams.get('id') || '1';
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      <Nav />
+      <ReactFlow
+        nodeTypes={nodeTypes}
+        fitView
+      >
+        <StrategyFlow />
+      </ReactFlow>
     </div>
   );
 }

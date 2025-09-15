@@ -12,11 +12,13 @@ interface ArbitrageInputNodeProps {
     subtitle: string;
     onAmountChange?: (amount: number, profit: number) => void;
     onProceedToEscrow?: () => void;
+    onNodeClick?: (nodeId: string) => void;
   };
   selected: boolean;
+  id: string;
 }
 
-export const ArbitrageInputNode = ({ data, selected }: ArbitrageInputNodeProps) => {
+export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodeProps) => {
   const [amount, setAmount] = useState<string>('');
   const [estimatedProfit, setEstimatedProfit] = useState<number>(0);
   const [isValidAmount, setIsValidAmount] = useState<boolean>(false);
@@ -61,11 +63,20 @@ export const ArbitrageInputNode = ({ data, selected }: ArbitrageInputNodeProps) 
   };
 
   return (
-    <div className={`relative transition-all ${
-      selected 
-        ? 'scale-105' 
-        : 'hover:scale-102'
-    }`}>
+    <div 
+      className={`relative transition-all duration-300 cursor-pointer ${
+        selected 
+          ? 'scale-[1.02]' 
+          : ''
+      }`}
+      onClick={(e) => {
+        console.log(`🎯 ArbitrageInputNode direct click: ${data.label} (${id})`);
+        if (data.onNodeClick) {
+          data.onNodeClick(id);
+        }
+        e.stopPropagation();
+      }}
+    >
       <Handle
         type="source"
         position={Position.Right}
