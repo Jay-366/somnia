@@ -8,7 +8,33 @@ export const CONTRACT_ADDRESSES = {
   AOT_TOKEN: "0xD98f9971773045735C62cD8f1a70047f81b9a468",
   PERMIT2: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
   PYTH_ORACLE: "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21",
+  // ExecutorVault - deployed on Sepolia
+  EXECUTOR_VAULT: process.env.NEXT_PUBLIC_EXECUTOR_VAULT_ADDRESS || "0x06039B0f7Adce994ab0123c035F3C55e5db6944e",
 } as const;
+
+// Helper function to get contract address for specific network
+export function getContractAddress(contractName: keyof typeof CONTRACT_ADDRESSES, chainId: number): string | null {
+  // All these contracts are on Sepolia (11155111)
+  if (chainId === 11155111) {
+    return CONTRACT_ADDRESSES[contractName];
+  }
+  
+  // Somnia (50312) only has ESCROW_NATIVE
+  if (chainId === 50312) {
+    if (contractName === 'EXECUTOR_VAULT') {
+      // Return escrow address for Somnia if needed
+      return process.env.NEXT_PUBLIC_ESCROW_ADDRESS || null;
+    }
+    return null; // Other contracts don't exist on Somnia
+  }
+  
+  return null; // Unsupported network
+}
+
+// Helper to check if a contract exists on a network
+export function isContractAvailable(contractName: keyof typeof CONTRACT_ADDRESSES, chainId: number): boolean {
+  return getContractAddress(contractName, chainId) !== null;
+}
 
 // Network configuration
 export const SEPOLIA_CONFIG = {
@@ -78,10 +104,23 @@ export class ContractClient {
 
   // Helper function to get token balance
   async getTokenBalance(tokenAddress: string, userAddress: string): Promise<string> {
-    const contract = this.getERC20Contract(tokenAddress);
-    const balance = await contract.balanceOf(userAddress);
-    const decimals = await contract.decimals();
-    return ethers.formatUnits(balance, decimals);
+    try {
+      const contract = this.getERC20Contract(tokenAddress);
+      const [balance, decimals] = await Promise.all([
+        contract.balanceOf(userAddress),
+        contract.decimals()
+      ]);
+      return ethers.formatUnits(balance, decimals);
+    } catch (error: any) {
+      console.error(`Failed to get token balance for ${tokenAddress}:`, error);
+      if (error.message?.includes('network')) {
+        throw new Error('Network connection failed. Please check your RPC connection.');
+      } else if (error.message?.includes('contract')) {
+        throw new Error('Token contract not found on this network.');
+      } else {
+        throw new Error(`Failed to fetch balance: ${error.message}`);
+      }
+    }
   }
 
   // Helper function to get token info

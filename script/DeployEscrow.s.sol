@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "forge-std/Script.sol";
-import "../contracts/Escrow.sol";
+import "../contracts/EscrowNative.sol";
 
 contract DeployEscrow is Script {
     function run() external {
@@ -16,8 +16,8 @@ contract DeployEscrow is Script {
         
         vm.startBroadcast(deployerPrivateKey);
         
-        // Deploy Escrow contract
-        Escrow escrow = new Escrow(sttTokenAddress);
+        // Deploy EscrowNative contract
+        EscrowNative escrow = new EscrowNative();
         
         console.log("========================================");
         console.log("DEPLOYMENT SUCCESSFUL!");

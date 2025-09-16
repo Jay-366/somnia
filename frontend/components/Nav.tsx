@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ConnectButton } from "thirdweb/react";
-import { client } from "@/lib/thirdweb";
+import { client, supportedChains } from "@/lib/thirdweb";
+import { NetworkSwitcher, NetworkSwitcherMobile } from "./NetworkSwitcher";
 
 export default function Nav() {
   return (
@@ -20,11 +21,24 @@ export default function Nav() {
         <Link href="#offers" className="text-gray-300 hover:text-white transition-colors">SPECIAL OFFERS</Link>
         <Link href="#news" className="text-gray-300 hover:text-white transition-colors">NEWS</Link>
         <Link href="#contacts" className="text-gray-300 hover:text-white transition-colors">CONTACTS</Link>
+        <Link href="/test" className="text-[rgb(178,255,238)] hover:text-white transition-colors">ESCROW TEST</Link>
       </div>
       
-      <div className="flex items-center">
+      <div className="flex items-center gap-4">
+        {/* Network Switcher - Desktop */}
+        <div className="hidden md:block">
+          <NetworkSwitcher />
+        </div>
+        
+        {/* Network Switcher - Mobile */}
+        <div className="md:hidden">
+          <NetworkSwitcherMobile />
+        </div>
+        
+        {/* Wallet Connect Button */}
         <ConnectButton 
           client={client}
+          chains={supportedChains}
           theme="dark"
           connectButton={{
             style: {
@@ -40,6 +54,10 @@ export default function Nav() {
           connectModal={{
             title: "Connect to AFS",
             titleIcon: "",
+            welcomeScreen: {
+              title: "Welcome to Anti Fragile System",
+              subtitle: "Connect your wallet to access arbitrage features across multiple networks",
+            },
           }}
         />
       </div>
