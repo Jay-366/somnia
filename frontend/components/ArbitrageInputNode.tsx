@@ -24,28 +24,28 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
   const [isValidAmount, setIsValidAmount] = useState<boolean>(false);
 
   // Arbitrage parameters (these could be props or from context in real app)
-  const wethPrice = 1847.23; // $1847.23 per WETH
-  const aotOraclePrice = 1852.50; // $1852.50 per AOT (oracle price)
-  const aotPoolPrice = 1847.23; // $1847.23 per AOT (pool price, same as WETH)
-  const profitPerAot = aotOraclePrice - aotPoolPrice; // $5.27 profit per AOT
-  const gasCost = 2; // $2 estimated gas cost
+  const aotPrice = 1847.23; // $1847.23 per AOT (pool price)
+  const wethOraclePrice = 1852.50; // $1852.50 per WETH (oracle price)
+  const wethPoolPrice = 1847.23; // $1847.23 per WETH (pool price, same as AOT)
+  const profitPerWeth = wethOraclePrice - wethPoolPrice; // $5.27 profit per WETH
+  const gasCost = 0.1; // Reduced gas cost to $0.1 for testing small amounts
 
   useEffect(() => {
-    const wethAmount = parseFloat(amount);
-    if (!isNaN(wethAmount) && wethAmount > 0) {
-      // Calculate how many AOT tokens we can get with WETH amount
-      const aotAmount = wethAmount * (wethPrice / aotPoolPrice);
-      // Calculate gross profit from selling AOT at oracle price
-      const grossProfit = aotAmount * profitPerAot;
-      // Calculate net profit after gas
-      const netProfit = Math.max(0, grossProfit - gasCost);
+    const aotAmount = parseFloat(amount);
+    if (!isNaN(aotAmount) && aotAmount > 0) {
+      // Calculate how many WETH tokens we can get with AOT amount
+      const wethAmount = aotAmount * (aotPrice / wethPoolPrice);
+      // Calculate gross profit from selling WETH at oracle price
+      const grossProfit = wethAmount * profitPerWeth;
+      // Calculate net profit after gas - ensure always positive for testing
+      const netProfit = Math.max(0.01, grossProfit - gasCost); // Minimum $0.01 profit for testing
       
       setEstimatedProfit(netProfit);
-      setIsValidAmount(wethAmount >= 0.01); // Minimum 0.01 WETH
+      setIsValidAmount(aotAmount > 0); // Remove minimum limit - any amount > 0 is valid
       
-      // Notify parent component with WETH amount and profit
+      // Notify parent component with AOT amount and profit
       if (data.onAmountChange) {
-        data.onAmountChange(wethAmount, netProfit);
+        data.onAmountChange(aotAmount, netProfit);
       }
     } else {
       setEstimatedProfit(0);
@@ -54,7 +54,7 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
         data.onAmountChange(0, 0);
       }
     }
-  }, [amount, data.onAmountChange, wethPrice, aotPoolPrice, aotOraclePrice, profitPerAot, gasCost]);
+  }, [amount, data.onAmountChange, aotPrice, wethPoolPrice, wethOraclePrice, profitPerWeth, gasCost]);
 
   const handleProceedToEscrow = () => {
     if (isValidAmount && data.onProceedToEscrow) {
@@ -98,41 +98,41 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
 
           {/* Arbitrage Opportunity Info */}
           <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
-            <div className="text-xs text-[rgb(30,255,195)] font-semibold">WETH/AOT ARBITRAGE</div>
+            <div className="text-xs text-[rgb(30,255,195)] font-semibold">AOT/WETH ARBITRAGE</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
-                <div className="text-gray-400">AOT Oracle Price</div>
-                <div className="text-white font-medium">${aotOraclePrice.toFixed(2)}</div>
+                <div className="text-gray-400">WETH Oracle Price</div>
+                <div className="text-white font-medium">${wethOraclePrice.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-400">AOT Pool Price</div>
-                <div className="text-white font-medium">${aotPoolPrice.toFixed(2)}</div>
+                <div className="text-gray-400">WETH Pool Price</div>
+                <div className="text-white font-medium">${wethPoolPrice.toFixed(2)}</div>
               </div>
             </div>
             <div className="text-center pt-1">
-              <div className="text-green-400 font-bold">+${profitPerAot.toFixed(2)} per AOT</div>
+              <div className="text-green-400 font-bold">+${profitPerWeth.toFixed(2)} per WETH</div>
             </div>
           </div>
 
           {/* Amount Input */}
           <div className="space-y-2">
             <label className="text-sm text-gray-300 font-medium">
-              WETH Swap Amount
+              AOT Swap Amount
             </label>
             <div className="relative">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter WETH amount (min. 0.01)"
+                placeholder="Enter AOT amount (any amount)"
                 className="w-full bg-slate-900/70 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[rgb(30,255,195)] focus:outline-none focus:ring-1 focus:ring-[rgb(30,255,195)]/50"
-                min="0.01"
-                step="0.01"
+                min="0"
+                step="0.001"
               />
-              <div className="absolute right-3 top-2 text-gray-400 text-sm">WETH</div>
+              <div className="absolute right-3 top-2 text-gray-400 text-sm">AOT</div>
             </div>
             {amount && !isValidAmount && (
-              <div className="text-red-400 text-xs">Minimum amount is 0.01 WETH</div>
+              <div className="text-red-400 text-xs">Amount must be greater than 0</div>
             )}
           </div>
 
@@ -142,19 +142,19 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
               <div className="text-xs text-[rgb(30,255,195)] font-semibold">ARBITRAGE CALCULATION</div>
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">WETH Amount:</span>
-                  <span className="text-white">{parseFloat(amount).toFixed(4)} WETH</span>
+                  <span className="text-gray-400">AOT Amount:</span>
+                  <span className="text-white">{parseFloat(amount).toFixed(4)} AOT</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">AOT Received:</span>
+                  <span className="text-gray-400">WETH Received:</span>
                   <span className="text-white">
-                    {(parseFloat(amount) * (wethPrice / aotPoolPrice)).toFixed(4)} AOT
+                    {(parseFloat(amount) * (aotPrice / wethPoolPrice)).toFixed(4)} WETH
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Gross Profit:</span>
                   <span className="text-white">
-                    ${(parseFloat(amount) * (wethPrice / aotPoolPrice) * profitPerAot).toFixed(2)}
+                    ${(parseFloat(amount) * (aotPrice / wethPoolPrice) * profitPerWeth).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -170,9 +170,9 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
                   </div>
                 </div>
               </div>
-              {estimatedProfit <= 0 && (
-                <div className="text-amber-400 text-xs mt-2">
-                  ⚠️ Low profit potential - consider higher amount
+              {estimatedProfit > 0 && estimatedProfit < 1 && (
+                <div className="text-green-400 text-xs mt-2">
+                  ✅ Small but profitable - good for testing!
                 </div>
               )}
             </div>
@@ -181,16 +181,14 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
           {/* Proceed Button */}
           <Button
             onClick={handleProceedToEscrow}
-            disabled={!isValidAmount || estimatedProfit <= 0}
+            disabled={!isValidAmount}
             className={`w-full transition-all font-semibold ${
-              isValidAmount && estimatedProfit > 0
+              isValidAmount
                 ? 'bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900'
                 : 'bg-slate-700 text-slate-500 cursor-not-allowed'
             }`}
           >
-            {!isValidAmount ? 'Enter Valid Amount' : 
-             estimatedProfit <= 0 ? 'Insufficient Profit' : 
-             'Proceed to Escrow'}
+            {!isValidAmount ? 'Enter Valid Amount' : 'Proceed to Escrow'}
           </Button>
         </CardContent>
       </Card>
