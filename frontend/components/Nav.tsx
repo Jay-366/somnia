@@ -16,11 +16,10 @@ export default function Nav() {
       </div>
       
       <div className="hidden md:flex items-center space-x-8">
-        <Link href="#about" className="text-gray-300 hover:text-white transition-colors">ABOUT US</Link>
-        <Link href="#services" className="text-[rgb(178,255,238)] font-medium">SERVICES</Link>
-        <Link href="#offers" className="text-gray-300 hover:text-white transition-colors">SPECIAL OFFERS</Link>
-        <Link href="#news" className="text-gray-300 hover:text-white transition-colors">NEWS</Link>
-        <Link href="#contacts" className="text-gray-300 hover:text-white transition-colors">CONTACTS</Link>
+        <Link href="/dashboard" className="text-[rgb(178,255,238)] font-medium hover:text-white transition-colors">DASHBOARD</Link>
+        <Link href="/arbitrage" className="text-gray-300 hover:text-white transition-colors">ARBITRAGE</Link>
+        <Link href="/pyth" className="text-gray-300 hover:text-white transition-colors">ORACLES</Link>
+        <Link href="/network-test" className="text-gray-300 hover:text-white transition-colors">NETWORK TEST</Link>
         <Link href="/test" className="text-[rgb(178,255,238)] hover:text-white transition-colors">ESCROW TEST</Link>
         <Link href="/test-executorVault" className="text-[rgb(178,255,238)] hover:text-white transition-colors">EXECUTOR VAULT</Link>
       </div>

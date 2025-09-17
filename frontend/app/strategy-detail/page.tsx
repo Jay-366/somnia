@@ -10,6 +10,7 @@ import { useExecutorVaultContract, ExecutorVaultService } from '../../lib/execut
 import { ContractClient, CONTRACT_ADDRESSES } from '../../lib/contracts';
 import { getNetworkById } from '../../lib/networks';
 import { ethers } from 'ethers';
+import { recordSwapCompletion } from '@/components/SwapHistoryTracker';
 import toast, { Toaster } from 'react-hot-toast';
 import ReactFlow, {
   Node,
@@ -206,6 +207,15 @@ function StrategyFlow() {
       
       // Calculate WETH received (simplified calculation)
       const wethReceived = (swapAmount * (1847.23 / 1847.23)).toFixed(4);
+      
+      // Record swap in history
+      recordSwapCompletion(
+        swapTx.hash,
+        'AOT',
+        'WETH',
+        swapAmount.toString(),
+        wethReceived
+      );
       
       // Dismiss loading toast and show success
       toast.dismiss(loadingToastId);

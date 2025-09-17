@@ -10,6 +10,7 @@ import { NetworkSwitcher } from '@/components/NetworkSwitcher';
 import { ExecutorVaultPanel } from '@/components/ExecutorVaultPanel';
 import { ExecutorVaultTransactionHistory } from '@/components/ExecutorVaultTransactionHistory';
 import { PoolDebugPanel } from '@/components/PoolDebugPanel';
+import { BalanceChecker } from '@/components/BalanceChecker';
 import { getNetworkById, SUPPORTED_NETWORKS } from '@/lib/networks';
 import toast from 'react-hot-toast';
 
@@ -134,6 +135,9 @@ export default function TestExecutorVaultPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Balance Checker - Important for preventing insufficient funds */}
+        {isSepoliaNetwork && <BalanceChecker />}
 
         {/* Main ExecutorVault Interface */}
         {isSepoliaNetwork && (

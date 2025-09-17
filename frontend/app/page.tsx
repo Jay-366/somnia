@@ -160,14 +160,14 @@ export default function Home() {
             Execute profitable trades by identifying price differences between DEX pools and oracle feeds
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/arbitrage">
-              <Button className="bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900 px-8 py-3 rounded-full font-semibold text-lg">
-                View Strategies
-              </Button>
-            </Link>
             <Link href="/dashboard">
               <Button className="bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900 px-8 py-3 rounded-full font-semibold text-lg">
                 Launch Dashboard
+              </Button>
+            </Link>
+            <Link href="/arbitrage">
+              <Button className="bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900 px-8 py-3 rounded-full font-semibold text-lg">
+                View Strategies
               </Button>
             </Link>
             <Link href="/pyth">
