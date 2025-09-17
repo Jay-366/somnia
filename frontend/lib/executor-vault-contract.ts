@@ -5,8 +5,8 @@ import { CONTRACT_ADDRESSES } from './contracts';
 
 // ExecutorVault contract configuration
 export const EXECUTOR_VAULT_CONFIG = {
-  // This will be updated after deployment
-  address: process.env.NEXT_PUBLIC_EXECUTOR_VAULT_ADDRESS || '0x0000000000000000000000000000000000000000',
+  // Use the deployed ExecutorVault address from Sepolia
+  address: CONTRACT_ADDRESSES.EXECUTOR_VAULT,
   abi: ExecutorVaultABI,
 };
 

@@ -22,6 +22,7 @@ export default function Nav() {
         <Link href="#news" className="text-gray-300 hover:text-white transition-colors">NEWS</Link>
         <Link href="#contacts" className="text-gray-300 hover:text-white transition-colors">CONTACTS</Link>
         <Link href="/test" className="text-[rgb(178,255,238)] hover:text-white transition-colors">ESCROW TEST</Link>
+        <Link href="/test-executorVault" className="text-[rgb(178,255,238)] hover:text-white transition-colors">EXECUTOR VAULT</Link>
       </div>
       
       <div className="flex items-center gap-4">
