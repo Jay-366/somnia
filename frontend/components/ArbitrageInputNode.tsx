@@ -83,12 +83,12 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
         className="!w-3 !h-3 !bg-[rgb(30,255,195)] !border-2 !border-slate-800"
       />
       
-      <Card className={`min-w-[320px] border-2 transition-all ${
+      <Card className={`min-w-[320px] min-h-[400px] border-2 transition-all ${
         selected 
           ? 'border-[rgb(30,255,195)] bg-[rgb(30,255,195)]/10 shadow-lg shadow-[rgb(30,255,195)]/25' 
           : 'border-slate-600 bg-slate-800/95 hover:border-[rgb(178,255,238)]'
       }`}>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 space-y-4 h-full flex flex-col">
           {/* Header */}
           <div className="text-center">
             <div className="text-3xl mb-2">{data.emoji}</div>
@@ -125,7 +125,7 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter AOT amount (any amount)"
-                className="w-full bg-slate-900/70 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[rgb(30,255,195)] focus:outline-none focus:ring-1 focus:ring-[rgb(30,255,195)]/50"
+                className="w-full bg-slate-900/70 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-gray-500 focus:border-[rgb(30,255,195)] focus:outline-none focus:ring-1 focus:ring-[rgb(30,255,195)]/50 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                 min="0"
                 step="0.001"
               />
@@ -136,47 +136,52 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
             )}
           </div>
 
-          {/* Profit Calculation */}
-          {amount && parseFloat(amount) > 0 && (
-            <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
-              <div className="text-xs text-[rgb(30,255,195)] font-semibold">ARBITRAGE CALCULATION</div>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">AOT Amount:</span>
-                  <span className="text-white">{parseFloat(amount).toFixed(4)} AOT</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">WETH Received:</span>
-                  <span className="text-white">
-                    {(parseFloat(amount) * (aotPrice / wethPoolPrice)).toFixed(4)} WETH
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Gross Profit:</span>
-                  <span className="text-white">
-                    ${(parseFloat(amount) * (aotPrice / wethPoolPrice) * profitPerWeth).toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Est. Gas Cost:</span>
-                  <span className="text-red-300">-${gasCost.toFixed(2)}</span>
-                </div>
-                <div className="border-t border-slate-700 pt-1">
+          {/* Profit Calculation - Fixed Height Container */}
+          <div className="min-h-[120px]">
+            {amount && parseFloat(amount) > 0 && (
+              <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                <div className="text-xs text-[rgb(30,255,195)] font-semibold">ARBITRAGE CALCULATION</div>
+                <div className="space-y-1 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-gray-300 font-medium">Net Profit:</span>
-                    <span className={`font-bold ${estimatedProfit > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      ${estimatedProfit.toFixed(2)}
+                    <span className="text-gray-400">AOT Amount:</span>
+                    <span className="text-white">{parseFloat(amount).toFixed(4)} AOT</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">WETH Received:</span>
+                    <span className="text-white">
+                      {(parseFloat(amount) * (aotPrice / wethPoolPrice)).toFixed(4)} WETH
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Gross Profit:</span>
+                    <span className="text-white">
+                      ${(parseFloat(amount) * (aotPrice / wethPoolPrice) * profitPerWeth).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Est. Gas Cost:</span>
+                    <span className="text-red-300">-${gasCost.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-slate-700 pt-1">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300 font-medium">Net Profit:</span>
+                      <span className={`font-bold ${estimatedProfit > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        ${estimatedProfit.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                {estimatedProfit > 0 && estimatedProfit < 1 && (
+                  <div className="text-green-400 text-xs mt-2">
+                    ✅ Small but profitable - good for testing!
+                  </div>
+                )}
               </div>
-              {estimatedProfit > 0 && estimatedProfit < 1 && (
-                <div className="text-green-400 text-xs mt-2">
-                  ✅ Small but profitable - good for testing!
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Spacer to push button to bottom */}
+          <div className="flex-grow"></div>
 
           {/* Proceed Button */}
           <Button

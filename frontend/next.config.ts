@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // Enable experimental features if needed
   },
+  // Configure external image domains
+  images: {
+    domains: ['images.unsplash.com'],
+  },
   // Add headers for CORS if needed
   async headers() {
     return [

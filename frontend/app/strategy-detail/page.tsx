@@ -25,7 +25,7 @@ import ReactFlow, {
   NodeTypes,
   Handle,
   Position,
-  useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArbitrageInputNode } from "@/components/ArbitrageInputNode";
 
-// Custom Node Component
+// Custom Node Component with in-node action button
 const CustomNode = ({ data, selected, id }: any) => {
   return (
     <div 
@@ -64,6 +64,24 @@ const CustomNode = ({ data, selected, id }: any) => {
       <div className="text-2xl mb-1">{data.emoji}</div>
       <div className="text-sm font-semibold text-white">{data.label}</div>
       <div className="text-xs text-gray-400 mt-1">{data.subtitle}</div>
+      {data.actionLabel && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!data.actionDisabled && data.onPrimaryAction) {
+              data.onPrimaryAction();
+            }
+          }}
+          disabled={data.actionDisabled}
+          className={`mt-1 text-xs font-medium px-3 py-1 rounded-md transition-all border ${
+            data.actionDisabled
+              ? 'bg-slate-700/60 border-slate-600 text-slate-400 cursor-not-allowed'
+              : 'bg-[rgb(30,255,195)]/20 hover:bg-[rgb(30,255,195)]/30 text-[rgb(178,255,238)] border-[rgb(30,255,195)]/40 hover:border-[rgb(30,255,195)]'
+          }`}
+        >
+          {data.actionLabel}
+        </button>
+      )}
     </div>
   );
 };
@@ -75,7 +93,8 @@ const nodeTypes: NodeTypes = {
 
 // Main Flow Component (with ReactFlow context)
 function StrategyFlow() {
-  const reactFlowInstance = useReactFlow();
+  // We'll capture the ReactFlow instance via onInit to ensure it's always available when focusing
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const account = useActiveAccount();
   const wallet = useActiveWallet();
   const { getContract } = useEscrowContract();
@@ -100,6 +119,30 @@ function StrategyFlow() {
     wethReceived: string;
     message: string;
   } | null>(null);
+
+  // Focus helper defined early so other hooks can depend on it safely
+  const focusOnNode = useCallback((nodeId: string) => {
+    if (!reactFlowInstance) {
+      console.warn('focusOnNode called before reactFlowInstance ready');
+      return;
+    }
+    const node = reactFlowInstance.getNode(nodeId);
+    if (!node) return;
+
+    console.log(`🎯 Focusing on node: ${nodeId}`);
+    setSelectedNode(nodeId);
+    setNodes((nds) => nds.map((n) => ({ ...n, selected: n.id === nodeId })));
+
+    reactFlowInstance.fitView({ nodes: [node], duration: 600, padding: 0.25 });
+    setTimeout(() => {
+      if (!reactFlowInstance) return;
+      reactFlowInstance.setCenter(
+        node.position.x + (node.width || 160) / 2,
+        node.position.y + (node.height || 100) / 2,
+        { duration: 500, zoom: 1.25 }
+      );
+    }, 250);
+  }, [reactFlowInstance]);
 
   // Toast utility functions
   const showSuccessToast = (message: string, txHash: string, isSepolia: boolean = false) => {
@@ -157,8 +200,8 @@ function StrategyFlow() {
     checkNetwork();
   }, [wallet]);
 
-  // Execute AOT → WETH swap on Sepolia
-  const executeSwap = async () => {
+  // Execute AOT → WETH swap on Sepolia (wrapped in useCallback to keep stable reference)
+  const executeSwap = useCallback(async () => {
     if (!account?.address || swapAmount <= 0) {
       showErrorToast('Please connect wallet and set AOT amount first');
       return;
@@ -256,10 +299,10 @@ function StrategyFlow() {
     } finally {
       setSwapLoading(false);
     }
-  };
+  }, [account?.address, swapAmount, isSepoliaNetwork, getExecutorContract]);
 
-  // Deposit STT to escrow contract
-  const handleDepositSTT = async () => {
+  // Deposit STT to escrow contract (stable reference)
+  const handleDepositSTT = useCallback(async () => {
     if (!account?.address || swapAmount <= 0) {
       showErrorToast('Please connect wallet and set AOT amount first');
       return;
@@ -313,7 +356,7 @@ function StrategyFlow() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [account?.address, swapAmount, getContract, focusOnNode]);
 
   // Callback functions for the ArbitrageInputNode
   const handleAmountChange = useCallback((amount: number, profit: number) => {
@@ -342,65 +385,23 @@ function StrategyFlow() {
     },
   ];
 
-  // Initialize with temporary nodes first
+  // Initialize with nodes using lazy initializer to prevent duplicates
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Function to smoothly focus on a specific node
-  const focusOnNode = useCallback((nodeId: string) => {
-    const node = reactFlowInstance.getNode(nodeId);
-    if (node) {
-      console.log(`🎯 Focusing on node: ${nodeId}`); // Debug log
-      
-      // Set the selected node
-      setSelectedNode(nodeId);
-      
-      // Update nodes to reflect the selected state with a slight animation delay
-      setNodes((nds) =>
-        nds.map((n) => ({
-          ...n,
-          selected: n.id === nodeId,
-        }))
-      );
-      
-      // First phase: Fit view to target node with smooth animation
-      reactFlowInstance.fitView({
-        nodes: [node],
-        duration: 800, // Animation duration in ms
-        padding: 0.3, // Padding around the focused node
-      });
-      
-      // Second phase: Center and zoom with enhanced effect
-      setTimeout(() => {
-        if (node.position) {
-          reactFlowInstance.setCenter(
-            node.position.x + (node.width || 160) / 2,
-            node.position.y + (node.height || 100) / 2,
-            { duration: 600, zoom: 1.3 } // Slightly more zoom and longer duration
-          );
-        }
-      }, 300); // Slightly longer delay for better effect
-    }
-  }, [reactFlowInstance, setNodes, setSelectedNode]);
-
-  // Define handleProceedToEscrow after focusOnNode
-  const handleProceedToEscrow = useCallback(() => {
-    if (canProceedToEscrow) {
-      // Smoothly focus on the escrow node
-      focusOnNode('escrow');
-    }
-  }, [canProceedToEscrow, focusOnNode]);
-
-  // Initialize nodes after all callbacks are defined
+  // Initialize nodes only once when component mounts
   useEffect(() => {
+    console.log('🚀 One-time node initialization');
     const initialNodes: Node[] = [
       {
         id: 'detector',
         type: 'arbitrageInput',
         position: { x: 200, y: 100 },
-        selected: true, // Initially selected
+        selected: true,
+        width: 320,
+        height: 400,
         data: { 
-          emoji: '⚡', 
+          emoji: '', 
           label: 'Arbitrage Detector', 
           subtitle: 'Opportunity Scanner',
           onAmountChange: handleAmountChange,
@@ -414,7 +415,7 @@ function StrategyFlow() {
         position: { x: 600, y: 100 },
         selected: false,
         data: { 
-          emoji: '🔒', 
+          emoji: '', 
           label: 'Escrow Fund', 
           subtitle: 'Secure Holdings',
           onNodeClick: focusOnNode,
@@ -426,7 +427,7 @@ function StrategyFlow() {
         position: { x: 1000, y: 100 },
         selected: false,
         data: { 
-          emoji: '🔄', 
+          emoji: '', 
           label: 'Execute Swap', 
           subtitle: 'Complete Trade',
           onNodeClick: focusOnNode,
@@ -435,7 +436,71 @@ function StrategyFlow() {
     ];
     
     setNodes(initialNodes);
-  }, [handleAmountChange, handleProceedToEscrow, focusOnNode, setNodes]);
+  }, []); // Run only once on mount
+
+
+  // Dynamically inject action buttons & enable states into escrow/execute nodes without remounting graph
+  useEffect(() => {
+    setNodes((nds) => {
+      let anyChanged = false;
+      const updated = nds.map((n) => {
+        if (n.id === 'escrow') {
+          const readyToDeposit = swapAmount > 0 && !depositStatus?.success;
+          const nextData = {
+            ...n.data,
+            actionLabel: depositStatus?.success ? 'Deposited ✔' : 'Deposit',
+            actionDisabled: !readyToDeposit || loading,
+            onPrimaryAction: () => {
+              if (readyToDeposit) {
+                handleDepositSTT();
+              } else if (depositStatus?.success) {
+                focusOnNode('execute');
+              }
+            },
+          };
+          // shallow compare relevant fields to prevent infinite update loop
+          if (
+            n.data.actionLabel !== nextData.actionLabel ||
+            n.data.actionDisabled !== nextData.actionDisabled
+          ) {
+            anyChanged = true;
+            return { ...n, data: nextData };
+          }
+          return n;
+        }
+        if (n.id === 'execute') {
+          const canExecute = !!depositStatus?.success && isSepoliaNetwork && !swapStatus?.success && swapAmount > 0;
+          const nextData = {
+            ...n.data,
+            actionLabel: swapStatus?.success ? 'Completed ✔' : 'Execute',
+            actionDisabled: !canExecute || swapLoading,
+            onPrimaryAction: () => {
+              if (canExecute) {
+                executeSwap();
+              }
+            },
+          };
+          if (
+            n.data.actionLabel !== nextData.actionLabel ||
+            n.data.actionDisabled !== nextData.actionDisabled
+          ) {
+            anyChanged = true;
+            return { ...n, data: nextData };
+          }
+          return n;
+        }
+        return n;
+      });
+      return anyChanged ? updated : nds;
+    });
+  }, [swapAmount, depositStatus, swapStatus, isSepoliaNetwork, loading, swapLoading, executeSwap, handleDepositSTT, focusOnNode]);
+
+
+  // Define handleProceedToEscrow after focusOnNode
+  // Always allow proceed when called (button itself controls disabled state)
+  const handleProceedToEscrow = useCallback(() => {
+    focusOnNode('escrow');
+  }, [focusOnNode]);
 
   const onConnect: OnConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -456,16 +521,27 @@ function StrategyFlow() {
     focusOnNode(node.id);
   }, [focusOnNode]);
 
+  // Navigate to previous node in linear flow (detector -> escrow -> execute)
+  const goToPreviousNode = useCallback(() => {
+    if (selectedNode === 'escrow') {
+      focusOnNode('detector');
+    } else if (selectedNode === 'execute') {
+      focusOnNode('escrow');
+    }
+  }, [selectedNode, focusOnNode]);
+
   // Add logging when component mounts
   useEffect(() => {
-    console.log('🚀 StrategyFlow component mounted, ReactFlow instance:', reactFlowInstance);
+    if (reactFlowInstance) {
+      console.log('🚀 StrategyFlow ReactFlow instance ready:', reactFlowInstance);
+    }
   }, [reactFlowInstance]);
 
   // Get details for selected node - Updated for 3-node flow
   const getNodeDetails = (nodeId: string) => {
     const details: Record<string, any> = {
       detector: {
-        title: "Arbitrage Detector ⚡",
+        title: "Arbitrage Detector",
         description: "Configure your AOT swap amount and review profit calculations before proceeding to escrow",
         status: swapAmount > 0 ? (canProceedToEscrow ? "Ready to Proceed" : "Insufficient Profit") : "Enter AOT Amount",
         details: [
@@ -481,7 +557,7 @@ function StrategyFlow() {
         }
       },
       escrow: {
-        title: "Escrow Fund 🔒",
+        title: "Escrow Fund",
         description: "Deposit STT tokens as collateral for the AOT/WETH arbitrage trade execution",
         status: depositStatus?.success ? "Deposit Successful ✅" : 
                depositStatus?.success === false ? "Deposit Failed ❌" :
@@ -510,7 +586,7 @@ function StrategyFlow() {
         }
       },
       execute: {
-        title: "Execute Swap 🔄",
+        title: "Execute Swap",
         description: "Execute AOT→WETH arbitrage trade via DEX pool with profit returned to your account",
         status: swapStatus?.success ? "Swap Completed ✅" :
                swapStatus?.success === false ? "Swap Failed ❌" :
@@ -559,9 +635,10 @@ function StrategyFlow() {
   return (
     <>
       {/* Main Content - ReactFlow as Full Background */}
-      <div className="relative h-[calc(100vh-80px)]">
+      <div className="relative mt-20 h-[calc(100vh-80px)]">
         {/* ReactFlow covering entire page */}
         <ReactFlow
+          onInit={setReactFlowInstance}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -583,8 +660,8 @@ function StrategyFlow() {
           selectNodesOnDrag={false}
           panOnDrag={true}
         >
-          <Controls className="!bg-slate-800/90 !border-slate-600 !backdrop-blur-sm" />
-          <Background color="#334155" gap={20} />
+          <Controls className="!bg-slate-900/95 !border-[rgb(30,255,195)]/30 !backdrop-blur-md !shadow-xl !shadow-[rgb(30,255,195)]/10 [&>button]:!bg-[rgb(30,255,195)]/15 [&>button]:!border-[rgb(30,255,195)]/40 [&>button]:hover:!bg-[rgb(30,255,195)]/25 [&>button]:!text-[rgb(30,255,195)] [&>button]:hover:!text-white [&>button]:!transition-all [&>button]:hover:!shadow-lg [&>button]:hover:!shadow-[rgb(30,255,195)]/30" />
+          <Background color="#000000" gap={4} />
         </ReactFlow>
 
         {/* Right Panel - Fixed Overlay with Vertical Collapse */}
@@ -626,7 +703,7 @@ function StrategyFlow() {
                   </CardDescription>
                 </CardHeader>
 
-            <CardContent className="space-y-6 overflow-y-auto h-[calc(100%-140px)]">
+            <CardContent className="space-y-6 overflow-y-auto h-[calc(100%-140px)] pb-20">
               {/* Details */}
               <div className="space-y-3">
                 {currentDetails.details.map((detail: any, index: number) => (
@@ -707,7 +784,7 @@ function StrategyFlow() {
               </Button>
 
               {/* Additional Info */}
-              <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
+              <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-600/30 mb-4">
                 <div className="text-xs text-gray-500 mb-2">Step Information</div>
                 <div className="text-sm text-gray-300">
                   {selectedNode === 'detector' && "AI algorithms continuously scan DEX pools and oracle feeds to identify profitable arbitrage opportunities in real-time."}
@@ -716,6 +793,26 @@ function StrategyFlow() {
                 </div>
               </div>
             </CardContent>
+            
+            {/* Back Button - Bottom Left Corner with proper spacing */}
+            {!isPanelCollapsed && (
+              <div className="absolute bottom-6 left-6 z-30">
+                <button
+                  onClick={goToPreviousNode}
+                  disabled={selectedNode === 'detector'}
+                  className={`group flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 backdrop-blur-sm ${
+                    selectedNode === 'detector'
+                      ? 'bg-slate-800/60 text-slate-500 cursor-not-allowed border border-slate-600/50'
+                      : 'bg-[rgb(30,255,195)]/15 hover:bg-[rgb(30,255,195)]/25 text-[rgb(178,255,238)] hover:text-[rgb(30,255,195)] border border-[rgb(30,255,195)]/40 hover:border-[rgb(30,255,195)]/70 hover:shadow-lg hover:shadow-[rgb(30,255,195)]/25 transform hover:scale-105'
+                  }`}
+                >
+                  <span className={`text-lg transition-transform duration-200 ${
+                    selectedNode === 'detector' ? '' : 'group-hover:-translate-x-0.5'
+                  }`}>←</span>
+                  <span>Previous Step</span>
+                </button>
+              </div>
+            )}
               </>
             )}
 
@@ -724,9 +821,9 @@ function StrategyFlow() {
               <div className="flex items-center justify-between px-4 h-full">
                 <div className="flex items-center space-x-3">
                   <div className="text-2xl">
-                    {selectedNode === 'detector' && '⚡'}
-                    {selectedNode === 'escrow' && '🔒'}
-                    {selectedNode === 'execute' && '🔄'}
+                    {selectedNode === 'detector' && ''}
+                    {selectedNode === 'escrow' && ''}
+                    {selectedNode === 'execute' && ''}
                   </div>
                   <div className="text-white font-semibold text-sm">
                     {currentDetails.title.split(' ')[0]} {/* Show first word of title */}
@@ -756,7 +853,7 @@ export default function StrategyDetailPage() {
   const strategyId = searchParams.get('id') || '1';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="min-h-screen bg-black">
       <Toaster 
         position="top-right"
         toastOptions={{
@@ -785,12 +882,10 @@ export default function StrategyDetailPage() {
         }}
       />
       <Nav />
-      <ReactFlow
-        nodeTypes={nodeTypes}
-        fitView
-      >
+      {/* Provide ReactFlow context only once to avoid duplicate node layers */}
+      <ReactFlowProvider>
         <StrategyFlow />
-      </ReactFlow>
+      </ReactFlowProvider>
     </div>
   );
 }

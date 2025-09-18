@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
+/* Force dark theme defaults (remove initial white flash) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020617; /* slate-950/navy blend */
+  --background-alt: radial-gradient(circle at 25% 25%, #0f172a 0%, #020617 60%);
+  --foreground: #f1f5f9; /* slate-100 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Removed unsupported @theme rule; Tailwind will still pick up CSS vars */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
+html, body {
+  background: var(--background-alt, var(--background));
+  min-height: 100%;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 70% 20%, rgba(30,255,195,0.07), transparent 60%),
+              radial-gradient(circle at 10% 80%, rgba(59,130,246,0.06), transparent 65%),
+              linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(255,255,255,0));
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Ensure nav transparency shows dark backdrop rather than white */
+nav { backdrop-filter: blur(8px); }

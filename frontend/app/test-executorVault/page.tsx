@@ -47,7 +47,7 @@ export default function TestExecutorVaultPage() {
 
   if (walletLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      <div className="min-h-screen bg-black">
         <Nav />
         <div className="p-8">
           <div className="max-w-4xl mx-auto">
@@ -63,7 +63,7 @@ export default function TestExecutorVaultPage() {
 
   if (!wallet || !account) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+      <div className="min-h-screen bg-black">
         <Nav />
         <div className="p-8">
           <div className="max-w-4xl mx-auto">
@@ -88,7 +88,7 @@ export default function TestExecutorVaultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="min-h-screen bg-black">
       <Nav />
       <div className="p-8">
         <div className="max-w-7xl mx-auto space-y-8">

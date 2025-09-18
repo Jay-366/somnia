@@ -13,7 +13,7 @@ export const SUPPORTED_NETWORKS = {
       symbol: "ETH",
       decimals: 18,
     },
-    icon: "🔹",
+    icon: "/sepolia.png",
     color: "#627EEA",
     description: "ExecutorVault & Swaps",
     contracts: {
@@ -35,7 +35,7 @@ export const SUPPORTED_NETWORKS = {
       symbol: "STT",
       decimals: 18,
     },
-    icon: "🌟",
+    icon: "/somnia.png",
     color: "#FF6B35",
     description: "Escrow & Native STT",
     contracts: {

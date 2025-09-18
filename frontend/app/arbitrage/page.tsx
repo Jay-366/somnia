@@ -2,111 +2,74 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 export default function ArbitragePage() {
   const strategies = [
     {
       id: 1,
       title: "DEX Pool vs Oracle Arbitrage",
-      description: "🏦 Monitor DEX pool prices against Pyth Oracle feeds to identify arbitrage opportunities",
-      profitPotential: "High",
-      riskLevel: "Medium",
-      complexity: "Intermediate",
-      timeframe: "5-15 minutes",
-      requirements: ["📊 Real-time Oracle access", "💧 Pool liquidity monitoring", "⚡ Fast execution"],
+      description: "Monitor DEX pool prices against Pyth Oracle feeds to identify arbitrage opportunities",
       example: {
         poolInfo: "AOT/WETH Pool: 1 AOT = $0.95",
-        oraclePrice: "📊 WETH/USD = $2000 (Pyth)",
+        oraclePrice: "WETH/USD = $2000 (Pyth)",
         derivedPrice: "Derived AOT/USD = $1.00",
-        opportunity: "✅ +5.26% arbitrage potential"
-      },
-      status: "active"
+        opportunity: "+5.26% arbitrage potential"
+      }
     },
     {
       id: 2,
       title: "USDC Pool vs Oracle Arbitrage",
-      description: "🏦 Monitor USDC/WETH pool prices against Pyth Oracle feeds for stablecoin arbitrage",
-      profitPotential: "Medium",
-      riskLevel: "Low",
-      complexity: "Beginner",
-      timeframe: "2-5 minutes",
-      requirements: ["📊 USDC Oracle access", "💧 Stablecoin liquidity", "⚡ Fast execution"],
+      description: "Monitor USDC/WETH pool prices against Pyth Oracle feeds for stablecoin arbitrage",
       example: {
         poolInfo: "USDC/WETH Pool: 1 USDC = $0.998",
-        oraclePrice: "📊 USDC/USD = $1.000 (Pyth)",
+        oraclePrice: "USDC/USD = $1.000 (Pyth)",
         derivedPrice: "WETH/USD = $2000 (Pyth)",
-        opportunity: "✅ +0.2% arbitrage potential"
-      },
-      status: "active"
+        opportunity: "+0.2% arbitrage potential"
+      }
     },
     {
       id: 3,
       title: "WBTC Pool vs Oracle Arbitrage",
-      description: "🏦 Track WBTC/ETH pool pricing against Bitcoin Oracle feeds for BTC arbitrage",
-      profitPotential: "High",
-      riskLevel: "Medium",
-      complexity: "Intermediate",
-      timeframe: "5-15 minutes",
-      requirements: ["📊 BTC Oracle access", "💧 WBTC liquidity monitoring", "⚡ Cross-asset execution"],
+      description: "Track WBTC/ETH pool pricing against Bitcoin Oracle feeds for BTC arbitrage",
       example: {
         poolInfo: "WBTC/ETH Pool: 1 WBTC = $42,150",
-        oraclePrice: "📊 BTC/USD = $42,500 (Pyth)",
+        oraclePrice: "BTC/USD = $42,500 (Pyth)",
         derivedPrice: "ETH/USD = $2000 (Pyth)",
-        opportunity: "✅ +0.83% arbitrage potential"
-      },
-      status: "active"
+        opportunity: "+0.83% arbitrage potential"
+      }
     },
     {
       id: 4,
       title: "LINK Pool vs Oracle Arbitrage",
-      description: "🏦 Compare LINK/USDC pool rates with Chainlink's own Oracle price feeds",
-      profitPotential: "Medium",
-      riskLevel: "Medium",
-      complexity: "Intermediate",
-      timeframe: "3-10 minutes",
-      requirements: ["📊 LINK Oracle access", "💧 LINK pool monitoring", "⚡ Multi-pool execution"],
+      description: "Compare LINK/USDC pool rates with Chainlink's own Oracle price feeds",
       example: {
         poolInfo: "LINK/USDC Pool: 1 LINK = $14.85",
-        oraclePrice: "📊 LINK/USD = $15.00 (Pyth)",
+        oraclePrice: "LINK/USD = $15.00 (Pyth)",
         derivedPrice: "USDC/USD = $1.000 (Pyth)",
-        opportunity: "✅ +1.01% arbitrage potential"
-      },
-      status: "active"
+        opportunity: "+1.01% arbitrage potential"
+      }
     },
     {
       id: 5,
       title: "UNI Pool vs Oracle Arbitrage",
-      description: "🏦 Monitor UNI/WETH pool against Uniswap token Oracle pricing for governance token arbitrage",
-      profitPotential: "High",
-      riskLevel: "High",
-      complexity: "Advanced",
-      timeframe: "5-20 minutes",
-      requirements: ["📊 UNI Oracle access", "💧 Governance token liquidity", "⚡ Volatility management"],
+      description: "Monitor UNI/WETH pool against Uniswap token Oracle pricing for governance token arbitrage",
       example: {
         poolInfo: "UNI/WETH Pool: 1 UNI = $6.75",
-        oraclePrice: "📊 UNI/USD = $7.20 (Pyth)",
+        oraclePrice: "UNI/USD = $7.20 (Pyth)",
         derivedPrice: "WETH/USD = $2000 (Pyth)",
-        opportunity: "✅ +6.67% arbitrage potential"
-      },
-      status: "beta"
+        opportunity: "+6.67% arbitrage potential"
+      }
     },
     {
       id: 6,
       title: "MATIC Pool vs Oracle Arbitrage",
-      description: "🏦 Track MATIC/USDT pool pricing against Polygon Oracle feeds for L2 token arbitrage",
-      profitPotential: "Medium",
-      riskLevel: "Low",
-      complexity: "Beginner",
-      timeframe: "3-8 minutes",
-      requirements: ["📊 MATIC Oracle access", "💧 L2 token liquidity", "⚡ Cross-chain awareness"],
+      description: "Track MATIC/USDT pool pricing against Polygon Oracle feeds for L2 token arbitrage",
       example: {
         poolInfo: "MATIC/USDT Pool: 1 MATIC = $0.815",
-        oraclePrice: "📊 MATIC/USD = $0.825 (Pyth)",
+        oraclePrice: "MATIC/USD = $0.825 (Pyth)",
         derivedPrice: "USDT/USD = $0.999 (Pyth)",
-        opportunity: "✅ +1.22% arbitrage potential"
-      },
-      status: "active"
+        opportunity: "+1.22% arbitrage potential"
+      }
     }
   ];
 
@@ -129,37 +92,20 @@ export default function ArbitragePage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active": return "bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30";
-      case "beta": return "bg-amber-100 text-amber-800 border-amber-200";
-      case "coming soon": return "bg-gray-100 text-gray-600 border-gray-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="min-h-screen bg-black">
       <Nav />
 
       {/* Header Section */}
       <div className="px-8 py-16">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+          <h1 className="text-5xl lg:text-6xl mt-20 font-bold text-white mb-6">
             Arbitrage <span className="text-[rgb(30,255,195)]">Strategies</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
             Discover and execute profitable arbitrage opportunities across different markets, 
             exchanges, and blockchain networks with our comprehensive strategy suite.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button className="bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900 px-6 py-2 rounded-full font-semibold">
-              Start Trading
-            </Button>
-            <Button variant="outline" className="border-[rgb(178,255,238)] text-[rgb(178,255,238)] hover:bg-[rgb(178,255,238)] hover:text-slate-900 px-6 py-2 rounded-full font-semibold">
-              Learn More
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -170,14 +116,8 @@ export default function ArbitragePage() {
             {strategies.map((strategy) => (
               <Card key={strategy.id} className="bg-slate-800/50 border-slate-700 backdrop-blur hover:bg-slate-800/70 transition-all group cursor-pointer">
                 <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-[rgb(30,255,195)]/20 rounded-lg flex items-center justify-center">
-                      <div className="w-6 h-6 bg-[rgb(30,255,195)] rounded rotate-45"></div>
-                    </div>
-                    <Badge className={`${getStatusColor(strategy.status)} text-xs px-2 py-1`}>
-                      {strategy.status.toUpperCase()}
-                    </Badge>
-                  </div>
+                  {/* Removed decorative diamond icon for cleaner professional look */}
+                  <div className="mb-2" />
                   
                   <CardTitle className="text-white text-xl group-hover:text-[rgb(178,255,238)] transition-colors">
                     {strategy.title}
@@ -188,30 +128,6 @@ export default function ArbitragePage() {
                 </CardHeader>
 
                 <CardContent className="space-y-6">
-                  {/* Metrics */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Profit Potential</div>
-                      <Badge className={`${getProfitColor(strategy.profitPotential)} text-xs px-2 py-1`}>
-                        {strategy.profitPotential}
-                      </Badge>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Risk Level</div>
-                      <Badge className={`${getRiskColor(strategy.riskLevel)} text-xs px-2 py-1`}>
-                        {strategy.riskLevel}
-                      </Badge>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Complexity</div>
-                      <div className="text-white text-sm font-medium">{strategy.complexity}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Timeframe</div>
-                      <div className="text-white text-sm font-medium">{strategy.timeframe}</div>
-                    </div>
-                  </div>
-
                   {/* Example */}
                   <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-600/30">
                     <div className="text-xs text-gray-500 mb-2">Live Example</div>
@@ -223,19 +139,6 @@ export default function ArbitragePage() {
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Requirements */}
-                  <div>
-                    <div className="text-xs text-gray-500 mb-2">Requirements</div>
-                    <ul className="space-y-1">
-                      {strategy.requirements.map((req, index) => (
-                        <li key={index} className="text-gray-300 text-sm flex items-center">
-                          <div className="w-1 h-1 bg-[rgb(178,255,238)] rounded-full mr-2 flex-shrink-0"></div>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
 
                   {/* Action Button */}
@@ -254,7 +157,7 @@ export default function ArbitragePage() {
         </div>
       </div>
 
-      {/* Bottom CTA */}
+      {/* Bottom CTA
       <div className="border-t border-slate-700 bg-slate-900/30 px-8 py-12">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl font-bold text-white mb-4">Ready to Start Your Arbitrage Journey?</h3>
@@ -274,7 +177,7 @@ export default function ArbitragePage() {
             </Link>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

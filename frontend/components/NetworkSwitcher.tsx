@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SUPPORTED_NETWORKS, supportedChains, getNetworkById } from '@/lib/networks';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 export function NetworkSwitcher() {
   const wallet = useActiveWallet();
@@ -174,25 +175,27 @@ export function NetworkSwitcher() {
         disabled={isSwitching}
         variant="outline"
         className={`
-          flex items-center gap-2 px-3 py-2 rounded-full border-2 transition-all duration-200
-          ${currentNetwork 
-            ? `border-[${currentNetwork.color}] bg-[${currentNetwork.color}]/10 hover:bg-[${currentNetwork.color}]/20` 
-            : 'border-gray-600 bg-gray-800 hover:bg-gray-700'
-          }
-          ${isDropdownOpen ? 'ring-2 ring-[rgb(30,255,195)]/50' : ''}
+          flex items-center gap-2 px-3 py-2 rounded-full border transition-all duration-200
+          bg-slate-800 border-slate-600 hover:bg-slate-700 text-white
+          ${isDropdownOpen ? 'ring-2 ring-[rgb(178,255,238)]/50' : ''}
         `}
       >
-        <span className="text-lg">
-          {currentNetwork ? currentNetwork.icon : '❓'}
-        </span>
-        <div className="flex flex-col items-start">
-          <span className="text-white text-sm font-medium">
-            {currentNetwork ? currentNetwork.displayName : 'Unknown Network'}
-          </span>
-          <span className="text-xs text-gray-400">
-            {currentNetwork ? currentNetwork.description : 'Not supported'}
-          </span>
+        <div className="w-5 h-5 flex items-center justify-center">
+          {currentNetwork ? (
+            <Image 
+              src={currentNetwork.icon} 
+              alt={`${currentNetwork.name} logo`}
+              width={20}
+              height={20}
+              className="rounded-full"
+            />
+          ) : (
+            <span className="text-lg">❓</span>
+          )}
         </div>
+        <span className="text-white text-sm font-medium">
+          {currentNetwork ? currentNetwork.displayName : 'Unknown Network'}
+        </span>
         <svg 
           className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
             isDropdownOpen ? 'rotate-180' : ''
@@ -210,7 +213,7 @@ export function NetworkSwitcher() {
         <div className="absolute top-full right-0 mt-2 w-80 bg-slate-900/95 backdrop-blur-lg border border-slate-700 rounded-lg shadow-lg z-50">
           <div className="p-4">
             <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              🌐 Switch Network
+              Switch Network
             </h3>
             
             <div className="space-y-2">
@@ -221,56 +224,34 @@ export function NetworkSwitcher() {
                   <div key={network.id} className="group">
                     <button
                       onClick={() => handleNetworkSwitch(network)}
-                      disabled={isSwitching || isActive}
+                      disabled={isSwitching}
                       className={`
-                        w-full p-3 rounded-lg border transition-all duration-200 text-left
-                        ${isActive 
-                          ? `border-[${network.color}] bg-[${network.color}]/20` 
-                          : 'border-slate-600 hover:border-slate-500 hover:bg-slate-800/50'
-                        }
+                        w-full p-3 rounded-lg border transition-all duration-200 text-left group
+                        bg-slate-800/50 border-slate-600 hover:bg-slate-700/70 hover:border-slate-500
                         ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}
                       `}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="text-xl">{network.icon}</span>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-medium">
-                                {network.displayName}
-                              </span>
-                              {isActive && (
-                                <Badge 
-                                  variant="secondary" 
-                                  className="text-xs bg-green-500/20 text-green-400 border-green-500/30"
-                                >
-                                  Active
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-gray-400 text-sm">
-                              {network.description}
-                            </p>
-                            <p className="text-gray-500 text-xs">
-                              Chain ID: {network.id} • {network.nativeCurrency.symbol}
-                            </p>
-                          </div>
+                          <Image 
+                            src={network.icon} 
+                            alt={`${network.name} logo`}
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                          
+                          <span className="text-white font-medium">
+                            {network.displayName}
+                          </span>
                         </div>
                         
-                        {!isActive && (
-                          <div className="flex items-center gap-2">
-                            <span
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addNetworkToWallet(network);
-                              }}
-                              className="text-xs text-[rgb(178,255,238)] hover:text-[rgb(30,255,195)] transition-colors cursor-pointer hover:underline"
-                              title="Add to wallet"
-                            >
-                              + Add
-                            </span>
-                          </div>
-                        )}
+                        {/* Bullet point - moved to right */}
+                        <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-[rgb(178,255,238)] border-[rgb(178,255,238)]' 
+                            : 'border-[rgb(178,255,238)] group-hover:bg-[rgb(178,255,238)]/30'
+                        }`}></div>
                       </div>
                     </button>
                   </div>
@@ -281,8 +262,6 @@ export function NetworkSwitcher() {
             {/* Network Info */}
             <div className="mt-4 pt-3 border-t border-slate-700">
               <div className="text-xs text-gray-400 space-y-1">
-                <p>💡 <strong>Somnia:</strong> For escrow operations with native STT</p>
-                <p>🔄 <strong>Sepolia:</strong> For ExecutorVault swaps (AOT ↔ WETH)</p>
               </div>
             </div>
           </div>
@@ -333,7 +312,13 @@ export function NetworkSwitcherMobile() {
         border-[${currentNetwork.color}] bg-[${currentNetwork.color}]/10 text-white
       `}
     >
-      <span>{currentNetwork.icon}</span>
+      <Image 
+        src={currentNetwork.icon} 
+        alt={`${currentNetwork.name} logo`}
+        width={20}
+        height={20}
+        className="rounded-full"
+      />
       {currentNetwork.name}
     </Badge>
   );

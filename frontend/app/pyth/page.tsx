@@ -4,7 +4,7 @@ import Nav from "@/components/Nav";
 
 export default function PythPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800">
+    <div className="min-h-screen bg-black">
       <Nav />
       
       {/* Page Content */}
