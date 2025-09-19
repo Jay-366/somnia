@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Wallet2, ArrowRightLeft, Zap, Rocket, RefreshCw, Coins, Banknote } from 'lucide-react';
+import { Lock, Wallet2, ArrowRightLeft, Zap, Rocket, RefreshCw, Coins, Banknote, ExternalLink } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { useExecutorVaultContract, ExecutorVaultService } from '@/lib/executor-vault-contract';
 import { CONTRACT_ADDRESSES } from '@/lib/contracts';
@@ -173,7 +173,31 @@ export function WithdrawalPanel() {
       
       if (receipt?.status === 1) {
         toast.success(
-          `Successfully withdrew ${withdrawAmount} ${unwrapWETH && withdrawToken === 'WETH' ? 'ETH' : withdrawToken}!`
+          <div className="flex items-start gap-3">
+            <div>
+              <div className="font-medium text-black">
+                Successfully withdrew {withdrawAmount} {unwrapWETH && withdrawToken === 'WETH' ? 'ETH' : withdrawToken}!
+              </div>
+              <a 
+                href={`https://sepolia.etherscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-800 hover:text-black text-sm underline flex items-center gap-1 mt-1"
+              >
+                View on Sepolia Etherscan <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>,
+          {
+            duration: 6000,
+            position: 'top-right',
+            style: {
+              background: 'rgb(30,255,195)',
+              color: '#000',
+              border: '1px solid rgb(30,255,195)',
+              fontWeight: '600',
+            },
+          }
         );
         setWithdrawAmount("");
         await Promise.all([loadVaultBalances(), loadUserBalances()]);

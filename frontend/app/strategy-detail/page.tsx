@@ -11,6 +11,7 @@ import { ContractClient, CONTRACT_ADDRESSES } from '../../lib/contracts';
 import { getNetworkById } from '../../lib/networks';
 import { ethers } from 'ethers';
 import { recordSwapCompletion } from '@/components/SwapHistoryTracker';
+import strategiesData from '@/data/strategies.json';
 import toast, { Toaster } from 'react-hot-toast';
 import ReactFlow, {
   Node,
@@ -306,7 +307,7 @@ function StrategyFlow() {
       const receipt = await swapTx.wait();
       
       // Calculate WETH received (simplified calculation)
-      const wethReceived = (swapAmount * (1847.23 / 1847.23)).toFixed(4);
+      const wethReceived = (swapAmount * (4512.60 / 4512.60)).toFixed(4);
       
       // Record swap in history
       recordSwapCompletion(
@@ -366,7 +367,7 @@ function StrategyFlow() {
     }
     
     setLoading(true);
-    const collateralAmount = (swapAmount * 1847.23).toFixed(4); // Calculate STT collateral needed
+    const collateralAmount = (swapAmount * 4512.60).toFixed(4); // Calculate STT collateral needed
     const loadingToastId = showLoadingToast(`Depositing ${collateralAmount} STT collateral...`);
     
     try {
@@ -602,9 +603,9 @@ function StrategyFlow() {
         description: "Configure your AOT swap amount and review profit calculations before proceeding to escrow",
         status: swapAmount > 0 ? (canProceedToEscrow ? "Ready to Proceed" : "Insufficient Profit") : "Enter AOT Amount",
         details: [
-          { label: "WETH Oracle Price", value: "$1,852.50" },
-          { label: "WETH Pool Price", value: "$1,847.23" },
-          { label: "Profit per WETH", value: "+$5.27" },
+          { label: "ETH Oracle Price", value: "$4,519.15" },
+          { label: "WETH Pool Price", value: "$4,512.60" },
+          { label: "Profit per WETH", value: "+$6.55" },
           { label: "AOT Swap Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} AOT` : "Not set" },
           { label: "Estimated Profit", value: swapAmount > 0 ? `$${estimatedProfit.toFixed(2)}` : "Calculating..." },
         ],
@@ -1009,7 +1010,33 @@ function StrategyFlow() {
 // Main wrapper component
 export default function StrategyDetailPage() {
   const searchParams = useSearchParams();
-  const strategyId = searchParams.get('id') || '1';
+  const strategyId = searchParams.get('id') || 'hiuhfiue997yr97h9h9'; // Default to first strategy
+
+  // Find the strategy from our JSON data
+  const strategy = strategiesData.strategies.find(s => s.id === strategyId);
+
+  // If strategy not found, show error page
+  if (!strategy) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Nav />
+        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+          <div className="max-w-md">
+            <h1 className="text-4xl font-bold text-white mb-4">Strategy Not Found</h1>
+            <p className="text-gray-400 mb-6">
+              The strategy with ID "{strategyId}" could not be found.
+            </p>
+            <Link 
+              href="/arbitrage"
+              className="inline-block bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900 font-bold py-3 px-6 rounded-lg transition-all"
+            >
+              Back to Strategies
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black">

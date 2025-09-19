@@ -1,0 +1,148 @@
+{
+  "strategies": [
+    {
+      "id": "hiuhfiue997yr97h9h9",
+      "title": "WETH/AOT Arbitrage Opportunity",
+      "description": "Profit from price discrepancies between ETH oracle price ($4,519.15) and WETH pool price ($4,512.60)",
+      "profitMargin": "+$6.55 per ETH",
+      "riskLevel": "Medium",
+      "minInvestment": "0.1 AOT",
+      "expectedReturn": "0.15%",
+      "timeFrame": "15-30 seconds",
+      "network": "Ethereum Sepolia",
+      "pools": [
+        { "name": "Uniswap V3 WETH/AOT", "fee": "0.3%", "liquidity": "$2.4M" },
+        { "name": "SushiSwap WETH/AOT", "fee": "0.25%", "liquidity": "$1.8M" }
+      ],
+      "status": "active",
+      "createdAt": "2024-12-19T10:30:00Z",
+      "lastUpdated": "2024-12-19T14:45:23Z"
+    },
+    {
+      "id": "kj8h9f2x7b4n5m1q3w6e",
+      "title": "USDC/DAI Stable Arbitrage",
+      "description": "Low-risk arbitrage between USDC and DAI stablecoin pools with consistent micro-profits",
+      "profitMargin": "+$0.15 per $1000",
+      "riskLevel": "Low",
+      "minInvestment": "100 USDC",
+      "expectedReturn": "0.015%",
+      "timeFrame": "5-10 seconds",
+      "network": "Ethereum Mainnet",
+      "pools": [
+        { "name": "Curve 3Pool", "fee": "0.04%", "liquidity": "$450M" },
+        { "name": "Uniswap V3 USDC/DAI", "fee": "0.05%", "liquidity": "$120M" }
+      ],
+      "status": "active",
+      "createdAt": "2024-12-19T09:15:00Z",
+      "lastUpdated": "2024-12-19T14:42:18Z"
+    },
+    {
+      "id": "p9r3t5y7u2i4o6a8s1d",
+      "title": "BTC/WBTC Cross-Chain Arbitrage",
+      "description": "Exploit price differences between Bitcoin on different chains and wrapped Bitcoin",
+      "profitMargin": "+$25.50 per BTC",
+      "riskLevel": "High",
+      "minInvestment": "0.01 BTC",
+      "expectedReturn": "0.42%",
+      "timeFrame": "2-5 minutes",
+      "network": "Multi-chain",
+      "pools": [
+        { "name": "Uniswap V2 WBTC/WETH", "fee": "0.3%", "liquidity": "$85M" },
+        { "name": "PancakeSwap BTCB/BNB", "fee": "0.25%", "liquidity": "$45M" }
+      ],
+      "status": "paused",
+      "createdAt": "2024-12-19T08:45:00Z",
+      "lastUpdated": "2024-12-19T13:20:45Z"
+    },
+    {
+      "id": "z8x7c6v5b4n3m2l1k0j",
+      "title": "ETH/MATIC Bridge Arbitrage",
+      "description": "Capitalize on price inefficiencies between Ethereum and Polygon networks",
+      "profitMargin": "+$3.85 per ETH",
+      "riskLevel": "Medium-High",
+      "minInvestment": "0.5 ETH",
+      "expectedReturn": "0.21%",
+      "timeFrame": "10-15 minutes",
+      "network": "Ethereum & Polygon",
+      "pools": [
+        { "name": "Uniswap V3 ETH/USDC", "fee": "0.3%", "liquidity": "$180M" },
+        { "name": "QuickSwap WETH/USDC", "fee": "0.3%", "liquidity": "$12M" }
+      ],
+      "status": "active",
+      "createdAt": "2024-12-19T11:20:00Z",
+      "lastUpdated": "2024-12-19T14:38:12Z"
+    },
+    {
+      "id": "f4g5h6j7k8l9m0n1b2v",
+      "title": "LINK/CHAINLINK Oracle MEV",
+      "description": "Front-run oracle updates for CHAINLINK token with precise timing algorithms",
+      "profitMargin": "+$1.20 per LINK",
+      "riskLevel": "Very High",
+      "minInvestment": "50 LINK",
+      "expectedReturn": "0.85%",
+      "timeFrame": "1-3 seconds",
+      "network": "Ethereum Mainnet",
+      "pools": [
+        { "name": "Uniswap V3 LINK/ETH", "fee": "0.3%", "liquidity": "$95M" },
+        { "name": "Balancer LINK/WETH", "fee": "0.3%", "liquidity": "$25M" }
+      ],
+      "status": "maintenance",
+      "createdAt": "2024-12-19T07:30:00Z",
+      "lastUpdated": "2024-12-19T12:15:30Z"
+    },
+    {
+      "id": "q2w3e4r5t6y7u8i9o0p",
+      "title": "UNI Governance Token Flash Loan",
+      "description": "Execute complex arbitrage using UNI token flash loans across multiple DEX protocols",
+      "profitMargin": "+$8.75 per 1000 UNI",
+      "riskLevel": "High",
+      "minInvestment": "1000 UNI",
+      "expectedReturn": "0.95%",
+      "timeFrame": "30-45 seconds",
+      "network": "Ethereum Mainnet",
+      "pools": [
+        { "name": "Uniswap V3 UNI/ETH", "fee": "0.3%", "liquidity": "$65M" },
+        { "name": "Sushiswap UNI/WETH", "fee": "0.3%", "liquidity": "$28M" }
+      ],
+      "status": "active",
+      "createdAt": "2024-12-19T12:45:00Z",
+      "lastUpdated": "2024-12-19T14:50:05Z"
+    },
+    {
+      "id": "a1s2d3f4g5h6j7k8l9z",
+      "title": "PEPE Meme Token Volatility Play",
+      "description": "High-frequency arbitrage on PEPE token during high volatility periods",
+      "profitMargin": "+$45.20 per trade",
+      "riskLevel": "Extreme",
+      "minInvestment": "1M PEPE",
+      "expectedReturn": "2.15%",
+      "timeFrame": "5-15 seconds",
+      "network": "Ethereum Mainnet",
+      "pools": [
+        { "name": "Uniswap V2 PEPE/WETH", "fee": "0.3%", "liquidity": "$15M" },
+        { "name": "Uniswap V3 PEPE/WETH", "fee": "1%", "liquidity": "$8M" }
+      ],
+      "status": "active",
+      "createdAt": "2024-12-19T13:30:00Z",
+      "lastUpdated": "2024-12-19T14:55:42Z"
+    },
+    {
+      "id": "m7n8b9v0c1x2z3a4s5d",
+      "title": "AAVE Lending Rate Arbitrage",
+      "description": "Exploit interest rate differences between AAVE V2 and V3 lending pools",
+      "profitMargin": "+$2.40 per 1000 USDC",
+      "riskLevel": "Low-Medium",
+      "minInvestment": "5000 USDC",
+      "expectedReturn": "0.048%",
+      "timeFrame": "1-2 hours",
+      "network": "Ethereum Mainnet",
+      "pools": [
+        { "name": "AAVE V3 USDC Pool", "fee": "0%", "liquidity": "$890M" },
+        { "name": "Compound USDC Pool", "fee": "0%", "liquidity": "$650M" }
+      ],
+      "status": "paused",
+      "createdAt": "2024-12-19T06:15:00Z",
+      "lastUpdated": "2024-12-19T11:30:15Z"
+    }
+  ]
+}

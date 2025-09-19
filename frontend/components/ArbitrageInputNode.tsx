@@ -24,21 +24,18 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
   const [isValidAmount, setIsValidAmount] = useState<boolean>(false);
 
   // Arbitrage parameters (these could be props or from context in real app)
-  const aotPrice = 1847.23; // $1847.23 per AOT (pool price)
-  const wethOraclePrice = 1852.50; // $1852.50 per WETH (oracle price)
-  const wethPoolPrice = 1847.23; // $1847.23 per WETH (pool price, same as AOT)
-  const profitPerWeth = wethOraclePrice - wethPoolPrice; // $5.27 profit per WETH
-  const gasCost = 0.1; // Reduced gas cost to $0.1 for testing small amounts
+  const aotPrice = 4512.60; // $4512.60 per AOT (pool price)
+  const wethOraclePrice = 4519.15; // $4519.15 per WETH (oracle price)
+  const wethPoolPrice = 4512.60; // $4512.60 per WETH (pool price, same as AOT)
+  const profitPerWeth = wethOraclePrice - wethPoolPrice; // $6.55 profit per WETH
 
   useEffect(() => {
     const aotAmount = parseFloat(amount);
     if (!isNaN(aotAmount) && aotAmount > 0) {
       // Calculate how many WETH tokens we can get with AOT amount
       const wethAmount = aotAmount * (aotPrice / wethPoolPrice);
-      // Calculate gross profit from selling WETH at oracle price
-      const grossProfit = wethAmount * profitPerWeth;
-      // Calculate net profit after gas - ensure always positive for testing
-      const netProfit = Math.max(0.01, grossProfit - gasCost); // Minimum $0.01 profit for testing
+      // Calculate net profit directly (no gas cost deduction)
+      const netProfit = wethAmount * profitPerWeth;
       
       setEstimatedProfit(netProfit);
       setIsValidAmount(aotAmount > 0); // Remove minimum limit - any amount > 0 is valid
@@ -54,7 +51,7 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
         data.onAmountChange(0, 0);
       }
     }
-  }, [amount, data.onAmountChange, aotPrice, wethPoolPrice, wethOraclePrice, profitPerWeth, gasCost]);
+  }, [amount, data.onAmountChange, aotPrice, wethPoolPrice, wethOraclePrice, profitPerWeth]);
 
   const handleProceedToEscrow = () => {
     if (isValidAmount && data.onProceedToEscrow) {
@@ -152,16 +149,6 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
                       {(parseFloat(amount) * (aotPrice / wethPoolPrice)).toFixed(4)} WETH
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Gross Profit:</span>
-                    <span className="text-white">
-                      ${(parseFloat(amount) * (aotPrice / wethPoolPrice) * profitPerWeth).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Est. Gas Cost:</span>
-                    <span className="text-red-300">-${gasCost.toFixed(2)}</span>
-                  </div>
                   <div className="border-t border-slate-700 pt-1">
                     <div className="flex justify-between">
                       <span className="text-gray-300 font-medium">Net Profit:</span>
@@ -171,9 +158,9 @@ export const ArbitrageInputNode = ({ data, selected, id }: ArbitrageInputNodePro
                     </div>
                   </div>
                 </div>
-                {estimatedProfit > 0 && estimatedProfit < 1 && (
+                {estimatedProfit > 0 && (
                   <div className="text-green-400 text-xs mt-2">
-                    ✅ Small but profitable - good for testing!
+                    Profitable arbitrage opportunity detected!
                   </div>
                 )}
               </div>
