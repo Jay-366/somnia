@@ -1,0 +1,25 @@
+{
+  "lastUpdated": "2024-01-01T00:00:00.000Z",
+  "analysisConfig": {
+    "minSpreadPercentage": 2.0,
+    "minConfidence": 0.7,
+    "maxPriceAge": 300
+  },
+  "priceData": {
+    "dia": [],
+    "uniswap": []
+  },
+  "opportunities": [],
+  "summary": {
+    "totalOpportunities": 0,
+    "bestSpread": 0,
+    "averageSpread": 0,
+    "totalEstimatedProfit": 0
+  },
+  "metadata": {
+    "analysisTime": "2024-01-01T00:00:00.000Z",
+    "tokensAnalyzed": [],
+    "sourcesUsed": ["DIA", "Uniswap-V3"],
+    "version": "1.0.0"
+  }
+}

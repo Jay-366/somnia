@@ -1,0 +1,57 @@
+{
+  "lastUpdated": "2025-09-19T04:13:56.558Z",
+  "source": "DIA Push Oracle on Somnia Testnet + Simulated Data",
+  "pairs": [
+    {
+      "symbol": "ETH/USD",
+      "name": "Ethereum",
+      "price": "4604.71",
+      "timestamp": 1758243236,
+      "source": "DIA Oracle"
+    },
+    {
+      "symbol": "BTC/USD",
+      "name": "Bitcoin",
+      "price": "117192.02",
+      "timestamp": 1758250434,
+      "source": "DIA Oracle"
+    },
+    {
+      "symbol": "SOMI/ETH",
+      "name": "Somnia",
+      "price": "0.00217",
+      "timestamp": 1726717200,
+      "source": "Simulated Data"
+    },
+    {
+      "symbol": "LINK/ETH",
+      "name": "Chainlink",
+      "price": "0.00326",
+      "timestamp": 1726717200,
+      "source": "Simulated Data"
+    },
+    {
+      "symbol": "SOL/USDC",
+      "name": "Solana",
+      "price": "142.50",
+      "timestamp": 1726717200,
+      "source": "Simulated Data"
+    },
+    {
+      "symbol": "ARB/USDC",
+      "name": "Arbitrum",
+      "price": "0.85",
+      "timestamp": 1726717200,
+      "source": "Simulated Data"
+    }
+  ],
+  "metadata": {
+    "totalPairs": 6,
+    "realDataFeeds": 2,
+    "simulatedFeeds": 4,
+    "successfulFetches": 6,
+    "failedFetches": 0,
+    "updateInterval": 5000,
+    "version": "1.2.0"
+  }
+}

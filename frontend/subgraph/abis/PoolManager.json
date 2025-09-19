@@ -1,0 +1,424 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "currency0",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "currency1",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint24",
+        "name": "fee",
+        "type": "uint24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tickSpacing",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint160",
+        "name": "sqrtPriceX96",
+        "type": "uint160"
+      }
+    ],
+    "name": "Initialize",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "liquidityDelta",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "salt",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ModifyLiquidity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int128",
+        "name": "amount0",
+        "type": "int128"
+      },
+      {
+        "indexed": false,
+        "internalType": "int128",
+        "name": "amount1",
+        "type": "int128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint160",
+        "name": "sqrtPriceX96",
+        "type": "uint160"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tick",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint24",
+        "name": "fee",
+        "type": "uint24"
+      }
+    ],
+    "name": "Swap",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount0",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount1",
+        "type": "uint256"
+      }
+    ],
+    "name": "Donate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tickLower",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "int24",
+        "name": "tickUpper",
+        "type": "int24"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "amount0",
+        "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "amount1",
+        "type": "uint128"
+      }
+    ],
+    "name": "Collect",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "PoolId",
+        "name": "poolId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount0",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount1",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "paid0",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "paid1",
+        "type": "uint256"
+      }
+    ],
+    "name": "Flash",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PoolKey",
+        "name": "key",
+        "type": "tuple",
+        "components": [
+          {
+            "internalType": "address",
+            "name": "currency0",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "currency1",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "fee",
+            "type": "uint24"
+          },
+          {
+            "internalType": "int24",
+            "name": "tickSpacing",
+            "type": "int24"
+          },
+          {
+            "internalType": "address",
+            "name": "hooks",
+            "type": "address"
+          }
+        ]
+      },
+      {
+        "internalType": "uint160",
+        "name": "sqrtPriceX96",
+        "type": "uint160"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [
+      {
+        "internalType": "int24",
+        "name": "tick",
+        "type": "int24"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PoolKey",
+        "name": "key",
+        "type": "tuple",
+        "components": [
+          {
+            "internalType": "address",
+            "name": "currency0",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "currency1",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "fee",
+            "type": "uint24"
+          },
+          {
+            "internalType": "int24",
+            "name": "tickSpacing",
+            "type": "int24"
+          },
+          {
+            "internalType": "address",
+            "name": "hooks",
+            "type": "address"
+          }
+        ]
+      }
+    ],
+    "name": "getSlot0",
+    "outputs": [
+      {
+        "internalType": "uint160",
+        "name": "sqrtPriceX96",
+        "type": "uint160"
+      },
+      {
+        "internalType": "int24",
+        "name": "tick",
+        "type": "int24"
+      },
+      {
+        "internalType": "uint24",
+        "name": "protocolFee",
+        "type": "uint24"
+      },
+      {
+        "internalType": "uint24",
+        "name": "lpFee",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "PoolKey",
+        "name": "key",
+        "type": "tuple",
+        "components": [
+          {
+            "internalType": "address",
+            "name": "currency0",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "currency1",
+            "type": "address"
+          },
+          {
+            "internalType": "uint24",
+            "name": "fee",
+            "type": "uint24"
+          },
+          {
+            "internalType": "int24",
+            "name": "tickSpacing",
+            "type": "int24"
+          },
+          {
+            "internalType": "address",
+            "name": "hooks",
+            "type": "address"
+          }
+        ]
+      }
+    ],
+    "name": "getLiquidity",
+    "outputs": [
+      {
+        "internalType": "uint128",
+        "name": "liquidity",
+        "type": "uint128"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

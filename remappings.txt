@@ -1,6 +1,7 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol=lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol
 @openzeppelin/contracts/token/ERC721/IERC721Metadata.sol=lib/openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol
+@openzeppelin/contracts/security/ReentrancyGuard.sol=lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol
 @uniswap/v4-core/=lib/v4-core/
 @uniswap/v4-periphery/=lib/v4-periphery/
 forge-std/=lib/forge-std/src/
@@ -8,3 +9,4 @@ permit2/=lib/permit2/
 v4-core/=lib/v4-core/
 v4-periphery/=lib/v4-periphery/
 openzeppelin/=lib/openzeppelin-contracts/contracts/
+@dia-data/contracts-spectra/=lib/Spectra-interoperability/contracts/contracts/

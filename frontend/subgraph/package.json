@@ -1,0 +1,19 @@
+{
+  "name": "uniswap-v4-sepolia",
+  "version": "1.0.0",
+  "description": "Uniswap V4 Subgraph for Sepolia network",
+  "repository": "https://github.com/your-repo/uniswap-v4-subgraph",
+  "license": "MIT",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy uniswap-v-4-sepolia",
+    "create-local": "graph create --node http://localhost:8020/ uniswap-v4-sepolia",
+    "remove-local": "graph remove --node http://localhost:8020/ uniswap-v4-sepolia",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 uniswap-v4-sepolia"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "^0.56.0",
+    "@graphprotocol/graph-ts": "^0.31.0"
+  }
+}

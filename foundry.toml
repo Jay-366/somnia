@@ -2,6 +2,8 @@
 sepolia = "${SEPOLIA_RPC}" # or Alchemy URL
 mainnet = "${MAINNET_RPC}"
 somnia = "${SOMNIA_RPC}"
+somnia_testnet = "https://dream-rpc.somnia.network/"
+somnia_mainnet = "https://api.infra.mainnet.somnia.network/"
 
 [profile.default]
 src = "src"
@@ -12,8 +14,9 @@ script = "script"
 
 optimize = true
 optimizer_runs = 200
-via_ir = true
+via_ir = false
 solc_version = "0.8.26"
+gas_limit = 30000000
 
 # Include contracts folder for escrow
 fs_permissions = [{ access = "read-write", path = "./" }]

@@ -1,0 +1,48 @@
+{
+  "name": "arbitrage-toolkit",
+  "version": "1.0.0",
+  "description": "TypeScript command-line arbitrage toolkit with modular components",
+  "main": "dist/bot/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/bot/index.ts",
+    "start": "node dist/bot/index.js",
+    "price:dia": "ts-node src/price/dia.ts",
+    "price:uniswap": "ts-node src/price/uniswapSubgraph.ts",
+    "price:feed": "ts-node src/price/priceFeedOracle.ts",
+    "strategy": "ts-node src/strategy/index.ts",
+    "executor": "ts-node src/executor/index.ts",
+    "monitor": "ts-node src/monitor/index.ts",
+    "bot": "ts-node src/bot/index.ts",
+    "clean": "rimraf dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "update-prices": "ts-node src/updatePriceFeeds.ts",
+    "watch-prices": "nodemon --exec ts-node src/updatePriceFeeds.ts --watch src"
+  },
+  "keywords": [
+    "arbitrage",
+    "defi",
+    "typescript",
+    "uniswap",
+    "dia",
+    "trading"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0",
+    "ethers": "^6.8.0",
+    "graphql": "^16.8.0",
+    "graphql-request": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

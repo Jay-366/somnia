@@ -63,25 +63,25 @@ export default function Home() {
                   { content: <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <Image src="/token-pair/eth_usdc.png" alt="ETH/USDC" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
-                        <span className='text-white font-medium'>ETH/USDC</span>
+                        <span className='text-white font-medium'>ETH/USD</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 2641.88 | Oracle 2644.12</span>
-                      <span className='text-emerald-400 text-sm font-semibold'>+$2.24</span>
+                      <span className='text-xs text-gray-400'>Pool $4599.45 | Oracle $4604.71</span>
+                      <span className='text-emerald-400 text-sm font-semibold'>+$5.26</span>
                     </div> },
                   { content: <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <Image src="/token-pair/bct_weth.png" alt="BTC/WETH" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
-                        <span className='text-white font-medium'>BTC/WETH</span>
+                        <span className='text-white font-medium'>BTC/USD</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 67234.11 | Oracle 67228.45</span>
-                      <span className='text-red-400 text-sm font-semibold'>-$5.66</span>
+                      <span className='text-xs text-gray-400'>Pool $117,085.30 | Oracle $117,192.02</span>
+                      <span className='text-emerald-400 text-sm font-semibold'>+$106.72</span>
                     </div> },
                   { content: <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <Image src="/token-pair/arb-usdc.png" alt="ARB/USDC" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
                         <span className='text-white font-medium'>ARB/USDC</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 1.22 | Oracle 1.24</span>
+                      <span className='text-xs text-gray-400'>Pool $0.83 | Oracle $0.85</span>
                       <span className='text-emerald-400 text-sm font-semibold'>+$0.02</span>
                     </div> },
                   { content: <div className='flex flex-col gap-1'>
@@ -89,24 +89,24 @@ export default function Home() {
                         <Image src="/token-pair/sol_usdc.png" alt="SOL/USDC" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
                         <span className='text-white font-medium'>SOL/USDC</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 142.12 | Oracle 142.40</span>
-                      <span className='text-emerald-400 text-sm font-semibold'>+$0.28</span>
+                      <span className='text-xs text-gray-400'>Pool $141.90 | Oracle $142.50</span>
+                      <span className='text-emerald-400 text-sm font-semibold'>+$0.60</span>
                     </div> },
                   { content: <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <Image src="/token-pair/link_eth.png" alt="LINK/ETH" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
                         <span className='text-white font-medium'>LINK/ETH</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 0.00521 | Oracle 0.00525</span>
-                      <span className='text-emerald-400 text-sm font-semibold'>+$0.00004</span>
+                      <span className='text-xs text-gray-400'>Pool 0.00320 | Oracle 0.00326</span>
+                      <span className='text-emerald-400 text-sm font-semibold'>+0.00006</span>
                     </div> },
                   { content: <div className='flex flex-col gap-1'>
                       <div className='flex items-center gap-2'>
                         <Image src="/token-pair/somi_eth.png" alt="SOMI/ETH" width={32} height={32} className='rounded-md object-contain shadow-[0_0_8px_rgba(30,255,195,0.25)]' />
                         <span className='text-white font-medium'>SOMI/ETH</span>
                       </div>
-                      <span className='text-xs text-gray-400'>Pool 0.00082 | Oracle 0.00083</span>
-                      <span className='text-emerald-400 text-sm font-semibold'>+$0.00001</span>
+                      <span className='text-xs text-gray-400'>Pool 0.00212 | Oracle 0.00217</span>
+                      <span className='text-emerald-400 text-sm font-semibold'>+0.00005</span>
                     </div> },
                   
                 ]}

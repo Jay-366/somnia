@@ -1,0 +1,315 @@
+type Pool @entity(immutable: false) {
+  id: ID! # PoolId (keccak256 hash)
+  token0: Token!
+  token1: Token!
+  fee: BigInt!
+  tickSpacing: Int!
+  hooks: Bytes! # Hook contract address
+  sqrtPriceX96: BigInt!
+  tick: Int!
+  observationIndex: Int!
+  observationCardinality: Int!
+  observationCardinalityNext: Int!
+  feeProtocol: Int!
+  unlocked: Boolean!
+  liquidity: BigInt!
+  
+  # Derived fields
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  txCount: BigInt!
+  
+  # Pool creation
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  
+  # Relationships
+  poolDayData: [PoolDayData!]! @derivedFrom(field: "pool")
+  poolHourData: [PoolHourData!]! @derivedFrom(field: "pool")
+  mints: [Mint!]! @derivedFrom(field: "pool")
+  burns: [Burn!]! @derivedFrom(field: "pool")
+  swaps: [Swap!]! @derivedFrom(field: "pool")
+  collects: [Collect!]! @derivedFrom(field: "pool")
+  ticks: [Tick!]! @derivedFrom(field: "pool")
+}
+
+type Token @entity(immutable: false) {
+  id: ID! # Token contract address
+  symbol: String!
+  name: String!
+  decimals: BigInt!
+  totalSupply: BigInt!
+  
+  # Volume and liquidity
+  volume: BigDecimal!
+  volumeUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  txCount: BigInt!
+  poolCount: BigInt!
+  totalValueLocked: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedUSDUntracked: BigDecimal!
+  
+  # Price tracking
+  derivedETH: BigDecimal!
+  
+  # Relationships
+  whitelistPools: [Pool!]!
+  tokenDayData: [TokenDayData!]! @derivedFrom(field: "token")
+}
+
+type Position @entity(immutable: false) {
+  id: ID! # NFT token ID or unique position identifier
+  owner: Bytes!
+  pool: Pool!
+  token0: Token!
+  token1: Token!
+  tickLower: Tick!
+  tickUpper: Tick!
+  liquidity: BigInt!
+  depositedToken0: BigDecimal!
+  depositedToken1: BigDecimal!
+  withdrawnToken0: BigDecimal!
+  withdrawnToken1: BigDecimal!
+  collectedFeesToken0: BigDecimal!
+  collectedFeesToken1: BigDecimal!
+  transaction: Transaction!
+  feeGrowthInside0LastX128: BigInt!
+  feeGrowthInside1LastX128: BigInt!
+}
+
+type Tick @entity(immutable: false) {
+  id: ID! # format: poolId#tickIdx
+  poolAddress: String # For compatibility, but not used in v4
+  tickIdx: BigInt!
+  pool: Pool!
+  liquidityGross: BigInt!
+  liquidityNet: BigInt!
+  price0: BigDecimal!
+  price1: BigDecimal!
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  collectedFeesToken0: BigDecimal!
+  collectedFeesToken1: BigDecimal!
+  collectedFeesUSD: BigDecimal!
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  liquidityProviderCount: BigInt!
+  feeGrowthOutside0X128: BigInt!
+  feeGrowthOutside1X128: BigInt!
+}
+
+type Transaction @entity(immutable: true) {
+  id: ID! # Transaction hash
+  blockNumber: BigInt!
+  timestamp: BigInt!
+  gasUsed: BigInt!
+  gasPrice: BigInt!
+  
+  # Relationships
+  mints: [Mint!]! @derivedFrom(field: "transaction")
+  burns: [Burn!]! @derivedFrom(field: "transaction")
+  swaps: [Swap!]! @derivedFrom(field: "transaction")
+  flashes: [Flash!]! @derivedFrom(field: "transaction")
+  collects: [Collect!]! @derivedFrom(field: "transaction")
+}
+
+type Mint @entity(immutable: true) {
+  id: ID! # Transaction hash + "#" + index in mints Transaction array
+  transaction: Transaction!
+  timestamp: BigInt!
+  pool: Pool!
+  token0: Token!
+  token1: Token!
+  owner: Bytes!
+  sender: Bytes!
+  origin: Bytes! # EOA that initiated the transaction
+  amount: BigInt!
+  amount0: BigDecimal!
+  amount1: BigDecimal!
+  amountUSD: BigDecimal
+  tickLower: BigInt!
+  tickUpper: BigInt!
+  logIndex: BigInt
+}
+
+type Burn @entity(immutable: true) {
+  id: ID! # Transaction hash + "#" + index in burns Transaction array
+  transaction: Transaction!
+  pool: Pool!
+  token0: Token!
+  token1: Token!
+  timestamp: BigInt!
+  owner: Bytes
+  origin: Bytes! # EOA that initiated the transaction
+  amount: BigInt!
+  amount0: BigDecimal!
+  amount1: BigDecimal!
+  amountUSD: BigDecimal
+  tickLower: BigInt!
+  tickUpper: BigInt!
+  logIndex: BigInt
+}
+
+type Swap @entity(immutable: true) {
+  id: ID! # Transaction hash + "#" + index in swaps Transaction array
+  transaction: Transaction!
+  timestamp: BigInt!
+  pool: Pool!
+  token0: Token!
+  token1: Token!
+  sender: Bytes!
+  recipient: Bytes!
+  origin: Bytes! # EOA that initiated the transaction
+  amount0: BigDecimal!
+  amount1: BigDecimal!
+  amountUSD: BigDecimal!
+  sqrtPriceX96: BigInt!
+  tick: BigInt!
+  logIndex: BigInt
+}
+
+type Collect @entity(immutable: true) {
+  id: ID! # Transaction hash + "#" + index in collects Transaction array
+  transaction: Transaction!
+  timestamp: BigInt!
+  pool: Pool!
+  owner: Bytes
+  amount0: BigDecimal!
+  amount1: BigDecimal!
+  amountUSD: BigDecimal
+  tickLower: BigInt!
+  tickUpper: BigInt!
+  logIndex: BigInt
+}
+
+type Flash @entity(immutable: true) {
+  id: ID! # Transaction hash + "#" + index in flashes Transaction array
+  transaction: Transaction!
+  timestamp: BigInt!
+  pool: Pool!
+  sender: Bytes!
+  recipient: Bytes!
+  amount0: BigDecimal!
+  amount1: BigDecimal!
+  amountUSD: BigDecimal!
+  amount0Paid: BigDecimal!
+  amount1Paid: BigDecimal!
+  logIndex: BigInt
+}
+
+# Data aggregation entities
+type UniswapDayData @entity(immutable: false) {
+  id: ID! # Timestamp rounded to current day by dividing by 86400
+  date: Int!
+  volumeETH: BigDecimal!
+  volumeUSD: BigDecimal!
+  volumeUSDUntracked: BigDecimal!
+  feesUSD: BigDecimal!
+  txCount: BigInt!
+  tvlUSD: BigDecimal!
+}
+
+type PoolDayData @entity(immutable: false) {
+  id: ID! # Timestamp rounded to current day by dividing by 86400
+  date: Int!
+  pool: Pool!
+  liquidity: BigInt!
+  sqrtPrice: BigInt!
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+  tick: BigInt
+  feeGrowthGlobal0X128: BigInt!
+  feeGrowthGlobal1X128: BigInt!
+  tvlUSD: BigDecimal!
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  txCount: BigInt!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+}
+
+type PoolHourData @entity(immutable: false) {
+  id: ID! # Format: <pool id>-<timestamp>
+  periodStartUnix: Int!
+  pool: Pool!
+  liquidity: BigInt!
+  sqrtPrice: BigInt!
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+  tick: BigInt
+  feeGrowthGlobal0X128: BigInt!
+  feeGrowthGlobal1X128: BigInt!
+  tvlUSD: BigDecimal!
+  volumeToken0: BigDecimal!
+  volumeToken1: BigDecimal!
+  volumeUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  txCount: BigInt!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+}
+
+type TokenDayData @entity(immutable: false) {
+  id: ID! # Format: <token address>-<timestamp>
+  date: Int!
+  token: Token!
+  volume: BigDecimal!
+  volumeUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  totalValueLocked: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+  priceUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+}
+
+type TokenHourData @entity(immutable: false) {
+  id: ID! # Format: <token address>-<timestamp>
+  periodStartUnix: Int!
+  token: Token!
+  volume: BigDecimal!
+  volumeUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  totalValueLocked: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+  priceUSD: BigDecimal!
+  feesUSD: BigDecimal!
+  open: BigDecimal!
+  high: BigDecimal!
+  low: BigDecimal!
+  close: BigDecimal!
+}
+
+# Factory entity for global data
+type Factory @entity(immutable: false) {
+  id: ID! # PoolManager contract address
+  poolCount: BigInt!
+  txCount: BigInt!
+  totalVolumeUSD: BigDecimal!
+  totalVolumeETH: BigDecimal!
+  totalFeesUSD: BigDecimal!
+  untrackedVolumeUSD: BigDecimal!
+  totalValueLockedUSD: BigDecimal!
+  totalValueLockedETH: BigDecimal!
+  totalValueLockedUSDUntracked: BigDecimal!
+  owner: ID!
+}
