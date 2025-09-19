@@ -32,6 +32,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArbitrageInputNode } from "@/components/ArbitrageInputNode";
+import { CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 
 // Custom Node Component with in-node action button
 const CustomNode = ({ data, selected, id }: any) => {
@@ -152,16 +153,19 @@ function StrategyFlow() {
     const explorerName = isSepolia ? "Sepolia Etherscan" : "Somnia Explorer";
     
     toast.success(
-      <div>
-        <div className="font-medium">{message}</div>
-        <a 
-          href={explorerUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-200 hover:text-blue-100 text-sm underline"
-        >
-          View on {explorerName} →
-        </a>
+      <div className="flex items-start gap-3">
+        <CheckCircle className="w-5 h-5 text-slate-900 flex-shrink-0 mt-0.5" />
+        <div>
+          <div className="font-medium text-slate-900">{message}</div>
+          <a 
+            href={explorerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-slate-700 hover:text-slate-800 text-sm underline flex items-center gap-1 mt-1"
+          >
+            View on {explorerName} <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </div>,
       {
         duration: 6000,
@@ -171,10 +175,16 @@ function StrategyFlow() {
   };
 
   const showErrorToast = (message: string) => {
-    toast.error(message, {
-      duration: 4000,
-      position: 'top-right',
-    });
+    toast.error(
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-red-900 flex-shrink-0 mt-0.5" />
+        <div className="font-medium text-red-900">{message}</div>
+      </div>,
+      {
+        duration: 4000,
+        position: 'top-right',
+      }
+    );
   };
 
   const showLoadingToast = (message: string) => {
@@ -183,22 +193,69 @@ function StrategyFlow() {
     });
   };
 
-  // Check if user is on Sepolia network
+  // Check if user is on Sepolia network with better reactivity
   useEffect(() => {
     const checkNetwork = async () => {
       if (wallet) {
         try {
           const chain = wallet.getChain();
           const chainId = chain?.id;
-          setIsSepoliaNetwork(chainId === 11155111); // Sepolia chain ID
+          console.log('🌐 Network check - Current chain ID:', chainId);
+          const newIsSepoliaNetwork = chainId === 11155111;
+          console.log('🔗 Is Sepolia Network:', newIsSepoliaNetwork);
+          setIsSepoliaNetwork(newIsSepoliaNetwork);
         } catch (error) {
           console.error('Failed to get network info:', error);
           setIsSepoliaNetwork(false);
         }
+      } else {
+        setIsSepoliaNetwork(false);
       }
     };
+    
     checkNetwork();
+    
+    // Set up interval to check network changes more frequently
+    const networkCheckInterval = setInterval(checkNetwork, 2000);
+    
+    return () => clearInterval(networkCheckInterval);
   }, [wallet]);
+
+  // Additional effect to listen for wallet chain changes
+  useEffect(() => {
+    if (wallet) {
+      const checkNetworkOnEvent = async () => {
+        try {
+          const chain = wallet.getChain();
+          const chainId = chain?.id;
+          console.log('🌐 Network event check - Chain ID:', chainId);
+          const newIsSepoliaNetwork = chainId === 11155111;
+          console.log('🔗 Network event - Is Sepolia:', newIsSepoliaNetwork);
+          setIsSepoliaNetwork(newIsSepoliaNetwork);
+        } catch (error) {
+          console.error('Failed to get network info on event:', error);
+          setIsSepoliaNetwork(false);
+        }
+      };
+
+      // Check immediately when wallet changes
+      checkNetworkOnEvent();
+      
+      // Try to listen for chain change events if supported
+      try {
+        if (wallet.subscribe) {
+          const unsubscribe = wallet.subscribe('chainChanged', checkNetworkOnEvent);
+          return () => {
+            if (typeof unsubscribe === 'function') {
+              unsubscribe();
+            }
+          };
+        }
+      } catch (error) {
+        console.log('Wallet chain change subscription not available:', error);
+      }
+    }
+  }, [wallet, account]);
 
   // Execute AOT → WETH swap on Sepolia (wrapped in useCallback to keep stable reference)
   const executeSwap = useCallback(async () => {
@@ -262,7 +319,7 @@ function StrategyFlow() {
       
       // Dismiss loading toast and show success
       toast.dismiss(loadingToastId);
-      showSuccessToast(`✅ Swapped ${swapAmount.toFixed(4)} AOT to ${wethReceived} WETH successfully!`, swapTx.hash, true);
+      showSuccessToast(`Swapped ${swapAmount.toFixed(4)} AOT to ${wethReceived} WETH successfully!`, swapTx.hash, true);
       
       // Update swap status for right panel
       setSwapStatus({
@@ -326,7 +383,7 @@ function StrategyFlow() {
       
       // Dismiss loading toast and show success
       toast.dismiss(loadingToastId);
-      showSuccessToast(`✅ Deposited ${collateralAmount} STT collateral successfully!`, tx.hash);
+      showSuccessToast(`Deposited ${collateralAmount} STT collateral successfully!`, tx.hash);
       
       // Update deposit status for right panel
       setDepositStatus({
@@ -559,13 +616,18 @@ function StrategyFlow() {
       escrow: {
         title: "Escrow Fund",
         description: "Deposit STT tokens as collateral for the AOT/WETH arbitrage trade execution",
-        status: depositStatus?.success ? "Deposit Successful ✅" : 
-               depositStatus?.success === false ? "Deposit Failed ❌" :
+        status: depositStatus?.success ? "Deposit Successful" : 
+               depositStatus?.success === false ? "Deposit Failed" :
                swapAmount > 0 ? "Ready for STT Deposit" : "Awaiting AOT Amount",
         details: [
           { label: "AOT Trade Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} AOT` : "Set AOT amount first" },
           { label: "Required STT Collateral", value: swapAmount > 0 ? `${(swapAmount * 1847.23).toFixed(4)} STT` : "TBD" },
-          { label: "Contract Address", value: process.env.NEXT_PUBLIC_ESCROW_ADDRESS?.slice(0, 6) + "..." + process.env.NEXT_PUBLIC_ESCROW_ADDRESS?.slice(-4) || "Not configured" },
+          { 
+            label: "Contract Address", 
+            value: "0xD98f...a468",
+            isLink: true,
+            href: "https://shannon-explorer.somnia.network/address/0xD98f9971773045735C62cD8f1a70047f81b9a468"
+          },
           ...(depositStatus ? [
             { label: "Transaction Status", value: depositStatus.message },
             ...(depositStatus.success ? [
@@ -588,8 +650,8 @@ function StrategyFlow() {
       execute: {
         title: "Execute Swap",
         description: "Execute AOT→WETH arbitrage trade via DEX pool with profit returned to your account",
-        status: swapStatus?.success ? "Swap Completed ✅" :
-               swapStatus?.success === false ? "Swap Failed ❌" :
+        status: swapStatus?.success ? "Swap Completed" :
+               swapStatus?.success === false ? "Swap Failed" :
                depositStatus?.success && isSepoliaNetwork ? "Ready to Execute" :
                depositStatus?.success && !isSepoliaNetwork ? "Switch to Sepolia Required" :
                swapAmount > 0 ? "Awaiting Collateral Deposit" : "Awaiting Setup",
@@ -597,8 +659,8 @@ function StrategyFlow() {
           { label: "AOT Input Amount", value: swapAmount > 0 ? `${swapAmount.toFixed(4)} AOT` : "Not set" },
           { label: "WETH Output Amount", value: swapAmount > 0 ? `${(swapAmount * (1847.23 / 1847.23)).toFixed(4)} WETH` : "Not set" },
           { label: "Execution Path", value: "AOT → DEX Pool → WETH to User" },
-          { label: "Network Status", value: isSepoliaNetwork ? "✅ Sepolia Connected" : "❌ Switch to Sepolia Required" },
-          { label: "STT Collateral Status", value: depositStatus?.success ? "✅ Deposited" : "⏳ Pending" },
+          { label: "Network Status", value: isSepoliaNetwork ? "Sepolia Connected" : "Switch to Sepolia Required" },
+          { label: "STT Collateral Status", value: depositStatus?.success ? "Deposited" : "Pending" },
           { label: "Expected Net Profit", value: swapAmount > 0 ? `$${estimatedProfit.toFixed(2)}` : "TBD" },
           ...(swapStatus ? [
             { label: "Swap Status", value: swapStatus.message },
@@ -618,7 +680,7 @@ function StrategyFlow() {
           ])
         ],
         action: {
-          label: swapStatus?.success ? "Swap Completed ✅" :
+          label: swapStatus?.success ? "Swap Completed" :
                 !isSepoliaNetwork ? "Switch to Sepolia Network" :
                 !depositStatus?.success ? "Deposit Collateral First" :
                 "Execute AOT→WETH Swap",
@@ -690,10 +752,30 @@ function StrategyFlow() {
                     <CardTitle className="text-white text-lg">{currentDetails.title}</CardTitle>
                     <Badge className={`${
                       currentDetails.status === 'Verified' || currentDetails.status === 'Connected' || currentDetails.status === 'Active' 
-                        ? 'bg-green-100 text-green-800 border-green-200'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
                         : currentDetails.status === 'Opportunity Found'
-                        ? 'bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30'
-                        : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Deposit Successful'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Swap Completed'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Ready to Proceed'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Ready for STT Deposit'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Ready to Execute'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Enter AOT Amount'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Insufficient Profit'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Awaiting AOT Amount'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Awaiting Setup'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : currentDetails.status === 'Awaiting Collateral Deposit'
+                        ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                        : 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
                     } text-xs px-2 py-1`}>
                       {currentDetails.status}
                     </Badge>
@@ -741,13 +823,70 @@ function StrategyFlow() {
                 ))}
               </div>
 
+              {/* Progress Bar - Only show for escrow deposit */}
+              {selectedNode === 'escrow' && loading && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-400">Depositing STT Collateral</span>
+                    <span className="text-sm text-[rgb(30,255,195)]">Processing...</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[rgb(30,255,195)] to-[rgb(178,255,238)] rounded-full transition-all duration-300 ease-out animate-pulse"
+                      style={{
+                        width: '100%',
+                        animation: 'progressFill 3s ease-in-out forwards'
+                      }}
+                    />
+                  </div>
+                  <style jsx>{`
+                    @keyframes progressFill {
+                      0% { width: 0%; }
+                      25% { width: 35%; }
+                      50% { width: 60%; }
+                      75% { width: 85%; }
+                      100% { width: 100%; }
+                    }
+                  `}</style>
+                </div>
+              )}
+
+              {/* Progress Bar - Only show for execute swap */}
+              {selectedNode === 'execute' && swapLoading && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-400">Executing AOT → WETH Swap</span>
+                    <span className="text-sm text-[rgb(30,255,195)]">Processing...</span>
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[rgb(30,255,195)] to-[rgb(178,255,238)] rounded-full transition-all duration-300 ease-out animate-pulse"
+                      style={{
+                        width: '100%',
+                        animation: 'progressFill 4s ease-in-out forwards'
+                      }}
+                    />
+                  </div>
+                  <style jsx>{`
+                    @keyframes progressFill {
+                      0% { width: 0%; }
+                      20% { width: 25%; }
+                      40% { width: 50%; }
+                      60% { width: 70%; }
+                      80% { width: 90%; }
+                      100% { width: 100%; }
+                    }
+                  `}</style>
+                </div>
+              )}
+
               {/* Action Button */}
               <Button 
                 className={`w-full ${
                   currentDetails.action.variant === 'default'
                     ? 'bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-slate-900'
                     : currentDetails.action.variant === 'success'
-                    ? 'bg-green-500 hover:bg-green-600 text-white'
+                    ? 'bg-[rgb(30,255,195)] hover:bg-[rgb(178,255,238)] text-black font-semibold'
                     : currentDetails.action.variant === 'disabled'
                     ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                     : 'bg-[rgb(30,255,195)]/10 hover:bg-[rgb(30,255,195)]/20 text-[rgb(178,255,238)] border border-[rgb(30,255,195)]/30 hover:border-[rgb(30,255,195)]/50'
@@ -831,10 +970,30 @@ function StrategyFlow() {
                 </div>
                 <Badge className={`${
                   currentDetails.status === 'Verified' || currentDetails.status === 'Connected' || currentDetails.status === 'Active' 
-                    ? 'bg-green-100 text-green-800 border-green-200'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
                     : currentDetails.status === 'Opportunity Found'
-                    ? 'bg-[rgb(30,255,195)]/20 text-[rgb(30,255,195)] border-[rgb(30,255,195)]/30'
-                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Deposit Successful'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Swap Completed'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Ready to Proceed'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Ready for STT Deposit'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Ready to Execute'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Enter AOT Amount'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Insufficient Profit'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Awaiting AOT Amount'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Awaiting Setup'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : currentDetails.status === 'Awaiting Collateral Deposit'
+                    ? 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
+                    : 'bg-[rgb(30,255,195)] text-black border-[rgb(30,255,195)]'
                 } text-xs px-2 py-1 mr-10`}>
                   {currentDetails.status.split(' ')[0]} {/* Show first word of status */}
                 </Badge>
@@ -866,17 +1025,25 @@ export default function StrategyDetailPage() {
           success: {
             duration: 6000,
             style: {
-              background: '#10B981',
+              background: 'rgb(30,255,195)',
+              color: '#0f172a',
+              border: '1px solid rgb(30,255,195)',
+              fontWeight: '600',
             },
           },
           error: {
             style: {
               background: '#EF4444',
+              color: '#fff',
+              border: '1px solid #EF4444',
             },
           },
           loading: {
             style: {
-              background: '#3B82F6',
+              background: 'rgb(30,255,195)',
+              color: '#0f172a',
+              border: '1px solid rgb(30,255,195)',
+              fontWeight: '500',
             },
           },
         }}

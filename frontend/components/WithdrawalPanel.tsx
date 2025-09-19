@@ -277,20 +277,37 @@ export function WithdrawalPanel() {
           {/* Unwrap Option for WETH */}
           {withdrawToken === 'WETH' && (
             <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-4">
+                <div 
+                  onClick={() => setUnwrapWETH(!unwrapWETH)}
+                  className="cursor-pointer flex items-center gap-2 mt-1 group"
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                    unwrapWETH 
+                      ? 'border-[rgb(30,255,195)] shadow-lg shadow-[rgb(30,255,195)]/40' 
+                      : 'border-gray-500 group-hover:border-[rgb(30,255,195)]'
+                  }`}>
+                    {unwrapWETH && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[rgb(30,255,195)]" />
+                    )}
+                  </div>
+                </div>
                 <input
                   type="checkbox"
                   id="unwrapWETH"
                   checked={unwrapWETH}
                   onChange={(e) => setUnwrapWETH(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-500 bg-slate-700 text-[rgb(30,255,195)] focus:ring-[rgb(30,255,195)] focus:ring-2"
+                  className="hidden"
                 />
-                <label htmlFor="unwrapWETH" className="text-white font-medium">
-                  <ArrowRightLeft className="w-4 h-4 mr-2" />
+                <label 
+                  htmlFor="unwrapWETH" 
+                  className="text-white font-medium cursor-pointer flex items-center gap-2"
+                >
+                  <ArrowRightLeft className="w-4 h-4" />
                   Unwrap WETH to ETH
                 </label>
               </div>
-              <p className="text-sm text-gray-300 mt-2 ml-8">
+              <p className="text-sm text-gray-300 mt-2 ml-9">
                 Convert WETH to native ETH during withdrawal
               </p>
             </div>
