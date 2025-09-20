@@ -35,6 +35,8 @@ It transforms DeFi from a fragmented and intimidating ecosystem into a seamless,
 ---
 
 ## Architecture Overview (DeFi-nitely)  
+<img width="1019" height="569" alt="Screenshot 2025-09-19 223505" src="https://github.com/user-attachments/assets/4c23fbc2-62c5-4405-b1dc-30ba3b05049d" />
+
 
 1. **Frontend Layer (User Interaction)**  
    - Built using **Next.js** for fast, responsive web UI.  
@@ -62,6 +64,7 @@ It transforms DeFi from a fragmented and intimidating ecosystem into a seamless,
 ---
 
 ## User Flow (DeFi-nitely)  
+<img width="1018" height="577" alt="Screenshot 2025-09-19 223517" src="https://github.com/user-attachments/assets/23fd1337-c3a5-49c8-ba85-59a097323587" />
 
 1. **Connect Wallet**  
    - User opens the **Next.js app**.  
